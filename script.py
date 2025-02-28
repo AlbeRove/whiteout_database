@@ -88,8 +88,10 @@ search_query = st.text_input("Search for a player by name or ID")
 
 # Filter players from all lists based on the search query
 all_players = pd.concat([active_players, banned_players, former_players], ignore_index=True)
-filtered_players = all_players[all_players['Player Name'].str.contains(search_query, case=False, na=False) |
-                                all_players['Player ID'].str.contains(search_query, case=False, na=False)]
+filtered_players = all_players[
+    all_players['Player Name'].astype(str).str.contains(search_query, case=False, na=False) |
+    all_players['Player ID'].astype(str).str.contains(search_query, case=False, na=False)
+]
 
 if not filtered_players.empty:
     player_to_manage = st.selectbox("Select Player to Manage", filtered_players["Player Name"].unique())
@@ -99,9 +101,6 @@ if not filtered_players.empty:
 
     st.write(f"**Player Name**: {selected_player['Player Name']}")
     st.write(f"**Player ID**: {selected_player['Player ID']}")
-    st.write(f"**Joined Time**: {format_datetime(selected_player['Time Added'] if 'Time Added' in selected_player else '')}")
-    st.write(f"**Banned Time**: {format_datetime(selected_player['Time Banned'] if 'Time Banned' in selected_player else '')}")
-    st.write(f"**Removed Time**: {format_datetime(selected_player['Time Removed'] if 'Time Removed' in selected_player else '')}")
 
     # Provide management options
     action = st.radio("Choose an action", ["", "Ban", "Restore", "Remove"])
