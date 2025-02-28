@@ -112,6 +112,15 @@ def get_former_players():
     return pd.DataFrame([(player.Player_ID, player.Name, player.Time_Removed) for player in players], 
                         columns=["Player ID", "Name", "Time Removed"])
 
+# Get Player Name based on Player ID
+def get_player_name_by_id(player_id):
+    engine = create_engine("sqlite:///alliance_players.db")
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    player = session.query(ActivePlayer).filter_by(Player_ID=player_id).first()
+    session.close()
+    return player.Name if player else None
+
 # Streamlit UI
 st.title("Alliance Players Management")
 init_db()
@@ -136,6 +145,11 @@ if st.button("Ban Player"):
 # Direct Ban Player Form (for non-active players)
 st.subheader("Ban Player (Directly by Player ID)")
 player_id_to_ban_direct = st.text_input("Enter Player ID to Ban")
+player_name_direct = None
+if player_id_to_ban_direct:
+    player_name_direct = get_player_name_by_id(player_id_to_ban_direct)
+if player_name_direct:
+    st.write(f"Player Name: {player_name_direct}")
 if st.button("Directly Ban Player"):
     if player_id_to_ban_direct:
         ban_player(player_id_to_ban_direct)
