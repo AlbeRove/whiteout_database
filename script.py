@@ -69,49 +69,53 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Add Active Player and Ban Player Buttons
+# Add Active Player and Ban Player Buttons side by side
 st.subheader("Add or Ban Player")
 new_player_name = st.text_input("Player Name", key="player_name")
 new_player_id = st.text_input("Player ID", key="player_id")
 
-# Add Player Button
-if st.button("Add Player"):
-    if new_player_name and new_player_id:
-        # Check if the player ID already exists in any list
-        if new_player_id in active_players["Player ID"].values or \
-           new_player_id in banned_players["Player ID"].values or \
-           new_player_id in former_players["Player ID"].values:
-            st.error(f"Player ID {new_player_id} already exists in the system.")
-        else:
-            new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
-                                     columns=["Player Name", "Player ID", "Time Added"])
-            active_players = pd.concat([active_players, new_entry], ignore_index=True)
-            save_data()
-            st.success(f"Player {new_player_name} added to Active Players.")
-            # Clear input fields after adding the player
-            st.session_state.player_name = ""
-            st.session_state.player_id = ""
-    else:
-        st.error("Please enter both Player Name and Player ID.")
+col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
 
-# Ban Player Button
-if st.button("Ban Player"):
-    if new_player_name and new_player_id:
-        # Check if the player exists in active players before banning
-        player_exists = active_players[active_players["Player ID"] == new_player_id]
-        if not player_exists.empty:
-            banned_players.loc[len(banned_players)] = player_exists.iloc[0]
-            banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-            active_players = active_players[active_players["Player ID"] != new_player_id]
-            save_data()
-            st.success(f"Player {new_player_name} has been banned.")
-            # Clear input fields after banning the player
-            st.session_state.player_name = ""
-            st.session_state.player_id = ""
+# Add Player Button in green
+with col1:
+    if st.button("Add Player"):
+        if new_player_name and new_player_id:
+            # Check if the player ID already exists in any list
+            if new_player_id in active_players["Player ID"].values or \
+               new_player_id in banned_players["Player ID"].values or \
+               new_player_id in former_players["Player ID"].values:
+                st.error(f"Player ID {new_player_id} already exists in the system.")
+            else:
+                new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
+                                         columns=["Player Name", "Player ID", "Time Added"])
+                active_players = pd.concat([active_players, new_entry], ignore_index=True)
+                save_data()
+                st.success(f"Player {new_player_name} added to Active Players.")
+                # Clear input fields after adding the player
+                st.session_state.player_name = ""
+                st.session_state.player_id = ""
         else:
-            st.error(f"Player ID {new_player_id} not found in Active Players.")
-    else:
-        st.error("Please enter both Player Name and Player ID.")
+            st.error("Please enter both Player Name and Player ID.")
+
+# Ban Player Button in red
+with col2:
+    if st.button("Ban Player"):
+        if new_player_name and new_player_id:
+            # Check if the player exists in active players before banning
+            player_exists = active_players[active_players["Player ID"] == new_player_id]
+            if not player_exists.empty:
+                banned_players.loc[len(banned_players)] = player_exists.iloc[0]
+                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                active_players = active_players[active_players["Player ID"] != new_player_id]
+                save_data()
+                st.success(f"Player {new_player_name} has been banned.")
+                # Clear input fields after banning the player
+                st.session_state.player_name = ""
+                st.session_state.player_id = ""
+            else:
+                st.error(f"Player ID {new_player_id} not found in Active Players.")
+        else:
+            st.error("Please enter both Player Name and Player ID.")
 
 # Function to render tables (without action buttons)
 def render_table(title, df):
