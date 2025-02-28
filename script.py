@@ -153,7 +153,7 @@ if not filtered_players.empty:
     selected_player = filtered_players[filtered_players["Player Name"] == player_to_manage].iloc[0]
 
     st.write(f"**Player Name**: {selected_player['Player Name']}")
-    st.write(f"**Player ID**: <span style='color: green;'>{selected_player['Player ID']}</span>", unsafe_allow_html=True)
+    st.write(f"**Player ID**: {selected_player['Player ID']}")  # Player ID now in default white color
 
     # Provide management options
     action = st.radio("Choose an action", ["Ban", "Restore", "Remove"])
