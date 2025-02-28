@@ -80,7 +80,7 @@ def render_table(title, df, action_buttons):
                             save_data()
                             st.experimental_rerun()
             
-                        if "restore" in action_buttons and st.button("🔄 Restore", key=f"restore_{index}"):
+                        if "restore" in action_buttons and st.button("🔄 Move to active", key=f"restore_{index}"):
                             active_players.loc[len(active_players)] = row
                             active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                             df.drop(index, inplace=True)
