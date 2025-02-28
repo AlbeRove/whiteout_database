@@ -107,36 +107,40 @@ if not filtered_players.empty:
     action = st.radio("Choose an action", ["", "Ban", "Restore", "Remove"])
 
     if action:
-        if action == "Ban":
-            if selected_player["Player ID"] in active_players["Player ID"].values:
-                banned_players.loc[len(banned_players)] = selected_player
-                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-                active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                save_data()
-                st.experimental_rerun()
-            else:
-                st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
+        if st.button("Confirm"):
+            with st.spinner(f"Processing {action}..."):
+                if action == "Ban":
+                    if selected_player["Player ID"] in active_players["Player ID"].values:
+                        banned_players.loc[len(banned_players)] = selected_player
+                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.experimental_rerun()
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
 
-        elif action == "Restore":
-            if selected_player["Player ID"] in banned_players["Player ID"].values:
-                active_players.loc[len(active_players)] = selected_player
-                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
-                banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                save_data()
-                st.experimental_rerun()
-            else:
-                st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
+                elif action == "Restore":
+                    if selected_player["Player ID"] in banned_players["Player ID"].values:
+                        active_players.loc[len(active_players)] = selected_player
+                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.experimental_rerun()
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
 
-        elif action == "Remove":
-            if selected_player["Player ID"] not in former_players["Player ID"].values:
-                former_players.loc[len(former_players)] = selected_player
-                former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
-                active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                save_data()
-                st.experimental_rerun()
-            else:
-                st.error(f"Player {selected_player['Player Name']} is already removed.")
+                elif action == "Remove":
+                    if selected_player["Player ID"] not in former_players["Player ID"].values:
+                        former_players.loc[len(former_players)] = selected_player
+                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
+                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.experimental_rerun()
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is already removed.")
+    else:
+        st.info("Select an action and click Confirm.")
 
 else:
     st.info("No players found. Try refining your search.")
