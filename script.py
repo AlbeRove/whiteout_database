@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -10,16 +10,14 @@ Base = declarative_base()
 
 class ActivePlayer(Base):
     __tablename__ = 'active_players'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Player_ID = Column(String, primary_key=True)  # Use Player_ID as the primary key
     Name = Column(String, nullable=False)
-    Player_ID = Column(String, nullable=False, unique=True)
     Time_Added = Column(DateTime, nullable=False)
 
 class BannedPlayer(Base):
     __tablename__ = 'banned_players'
-    ID = Column(Integer, primary_key=True, autoincrement=True)
+    Player_ID = Column(String, primary_key=True)  # Use Player_ID as the primary key
     Name = Column(String, nullable=False)
-    Player_ID = Column(String, nullable=False, unique=True)
     Time_Banned = Column(DateTime, nullable=False)
 
 # Initialize database
@@ -59,8 +57,8 @@ def get_active_players():
     session = Session()
     players = session.query(ActivePlayer).all()
     session.close()
-    return pd.DataFrame([(player.ID, player.Name, player.Player_ID, player.Time_Added) for player in players], 
-                        columns=["ID", "Name", "Player ID", "Time Added"])
+    return pd.DataFrame([(player.Player_ID, player.Name, player.Time_Added) for player in players], 
+                        columns=["Player ID", "Name", "Time Added"])
 
 # Fetch banned players
 def get_banned_players():
@@ -69,8 +67,8 @@ def get_banned_players():
     session = Session()
     players = session.query(BannedPlayer).all()
     session.close()
-    return pd.DataFrame([(player.ID, player.Name, player.Player_ID, player.Time_Banned) for player in players], 
-                        columns=["ID", "Name", "Player ID", "Time Banned"])
+    return pd.DataFrame([(player.Player_ID, player.Name, player.Time_Banned) for player in players], 
+                        columns=["Player ID", "Name", "Time Banned"])
 
 # Streamlit UI
 st.title("Alliance Players Management")
