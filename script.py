@@ -13,7 +13,7 @@ def load_data(file_path, columns):
     if os.path.exists(file_path):
         try:
             df = pd.read_csv(file_path)
-            if df.empty:  # Handle case where CSV exists but has no data
+            if df.empty:
                 return pd.DataFrame(columns=columns)
             return df
         except pd.errors.EmptyDataError:
@@ -21,8 +21,10 @@ def load_data(file_path, columns):
     return pd.DataFrame(columns=columns)
 
 # Save data to CSV
-def save_data(df, file_path):
-    df.to_csv(file_path, index=False)
+def save_data():
+    active_players.to_csv(ACTIVE_PLAYERS_FILE, index=False)
+    banned_players.to_csv(BANNED_PLAYERS_FILE, index=False)
+    former_players.to_csv(FORMER_PLAYERS_FILE, index=False)
 
 # Initialize player lists
 active_players = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Time Added"])
@@ -41,83 +43,55 @@ if st.button("Add Player"):
         new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
                                  columns=["Player Name", "Player ID", "Time Added"])
         active_players = pd.concat([active_players, new_entry], ignore_index=True)
-        save_data(active_players, ACTIVE_PLAYERS_FILE)
+        save_data()
         st.success(f"Player {new_player_name} added to Active Players.")
     else:
         st.error("Please enter both Player Name and Player ID.")
 
-# Remove Active Player (Moves to Former Players)
-st.subheader("Remove Active Player")
-if not active_players.empty:
-    remove_player_name = st.selectbox("Select Player to Remove", active_players["Player Name"].tolist())
-    if st.button("Remove Player"):
-        player_data = active_players[active_players["Player Name"] == remove_player_name]
-        former_entry = player_data.copy()
-        former_entry["Time Removed"] = datetime.now()
-        
-        active_players = active_players[active_players["Player Name"] != remove_player_name]
-        former_players = pd.concat([former_players, former_entry], ignore_index=True)
-        
-        save_data(active_players, ACTIVE_PLAYERS_FILE)
-        save_data(former_players, FORMER_PLAYERS_FILE)
-        
-        st.success(f"Player {remove_player_name} moved to Former Players.")
-else:
-    st.warning("No active players available to remove.")
+# Function to render tables with buttons
+def render_table(title, df, action_buttons):
+    st.subheader(title)
 
-# Ban Player (Moves to Banned Players)
-st.subheader("Ban Player")
-if not active_players.empty:
-    ban_player_name = st.selectbox("Select Player to Ban", active_players["Player Name"].tolist())
-    if st.button("Ban Player"):
-        player_data = active_players[active_players["Player Name"] == ban_player_name]
-        banned_entry = player_data.copy()
-        banned_entry["Time Banned"] = datetime.now()
+    if not df.empty:
+        for index, row in df.iterrows():
+            col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
 
-        active_players = active_players[active_players["Player Name"] != ban_player_name]
-        banned_players = pd.concat([banned_players, banned_entry], ignore_index=True)
+            col1.write(row["Player Name"])
+            col2.write(row["Player ID"])
+            col3.write(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", ""))))
 
-        save_data(active_players, ACTIVE_PLAYERS_FILE)
-        save_data(banned_players, BANNED_PLAYERS_FILE)
+            if "ban" in action_buttons and col4.button("BAN", key=f"ban_{index}"):
+                banned_players.loc[len(banned_players)] = row
+                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                df.drop(index, inplace=True)
+                save_data()
+                st.experimental_rerun()
 
-        st.success(f"Player {ban_player_name} has been banned.")
-else:
-    st.warning("No active players available to ban.")
+            if "restore" in action_buttons and col4.button("RESTORE", key=f"restore_{index}"):
+                active_players.loc[len(active_players)] = row
+                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                df.drop(index, inplace=True)
+                save_data()
+                st.experimental_rerun()
 
-# View Active Players
-st.subheader("Active Players")
-st.dataframe(active_players)
+            if "remove" in action_buttons and col4.button("REMOVE", key=f"remove_{index}"):
+                df.drop(index, inplace=True)
+                save_data()
+                st.experimental_rerun()
+    else:
+        st.info(f"No {title.lower()} yet.")
 
-# View Banned Players
-st.subheader("Banned Players")
-st.dataframe(banned_players)
+# Render tables
+render_table("Active Players", active_players, ["ban", "remove"])
+render_table("Banned Players", banned_players, ["remove"])
+render_table("Former Players", former_players, ["restore", "remove"])
 
-# View Former Players
-st.subheader("Former Players")
-st.dataframe(former_players)
+# SAVE button (green, rounded corners)
+st.markdown(
+    "<style> div.stButton > button:first-child { background-color: #4CAF50; color: white; border-radius: 15px; width: 100px; height: 40px; font-size: 16px; } </style>", 
+    unsafe_allow_html=True
+)
+if st.button("SAVE"):
+    save_data()
+    st.success("All data has been saved!")
 
-# Remove All Banned Players
-if st.button("Remove All Banned Players"):
-    banned_players = pd.DataFrame(columns=["Player Name", "Player ID", "Time Banned"])
-    save_data(banned_players, BANNED_PLAYERS_FILE)
-    st.success("All banned players have been removed!")
-
-# Remove All Former Players
-if st.button("Remove All Former Players"):
-    former_players = pd.DataFrame(columns=["Player Name", "Player ID", "Time Removed"])
-    save_data(former_players, FORMER_PLAYERS_FILE)
-    st.success("All former players have been removed!")
-
-# Save Data Buttons
-st.subheader("Export Data")
-if st.button("Save Active Players to CSV"):
-    save_data(active_players, ACTIVE_PLAYERS_FILE)
-    st.success("Active players saved to CSV!")
-
-if st.button("Save Banned Players to CSV"):
-    save_data(banned_players, BANNED_PLAYERS_FILE)
-    st.success("Banned players saved to CSV!")
-
-if st.button("Save Former Players to CSV"):
-    save_data(former_players, FORMER_PLAYERS_FILE)
-    st.success("Former players saved to CSV!")
