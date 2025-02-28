@@ -97,6 +97,9 @@ def render_table(title, df, action_buttons):
                                 st.experimental_rerun()
             
                         elif action == "❌ Remove":
+                            # Move player to Former Players instead of just dropping
+                            former_players.loc[len(former_players)] = row
+                            former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
                             df.drop(index, inplace=True)
                             save_data()
                             st.experimental_rerun()
