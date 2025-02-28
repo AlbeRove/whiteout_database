@@ -103,12 +103,9 @@ if not filtered_players.empty:
 
     st.write(f"**Player Name**: {selected_player['Player Name']}")
     st.write(f"**Player ID**: {selected_player['Player ID']}")
-    st.write(f"**Joined Time**: {format_datetime(selected_player['Time Added'] if 'Time Added' in selected_player else '')}")
-    st.write(f"**Banned Time**: {format_datetime(selected_player['Time Banned'] if 'Time Banned' in selected_player else '')}")
-    st.write(f"**Removed Time**: {format_datetime(selected_player['Time Removed'] if 'Time Removed' in selected_player else '')}")
 
     # Provide management options
-    action = st.radio("Choose an action", ["", "Ban", "Restore", "Remove"])
+    action = st.radio("Choose an action", ["Ban", "Restore", "Remove"])
 
     if action:
         if st.button("Confirm"):
