@@ -233,4 +233,8 @@ st.download_button(
 # Download Former Players CSV
 csv_former = former_players.to_csv(index=False)
 st.download_button(
-    label="Download
+    label="Download Former Players CSV",
+    data=csv_former,
+    file_name="former_players.csv",
+    mime="text/csv"
+)
