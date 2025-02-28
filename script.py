@@ -143,6 +143,8 @@ if not filtered_players.empty:
                         # No rerun here; Streamlit will refresh automatically
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already removed.")
+                st.experimental_rerun()
+                
     else:
         st.info("Select an action and click Confirm.")
 
