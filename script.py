@@ -60,6 +60,7 @@ if st.button("Add Player"):
             active_players = pd.concat([active_players, new_entry], ignore_index=True)
             save_data()
             st.success(f"Player {new_player_name} added to Active Players.")
+            st.experimental_rerun()  # Rerun after adding the player
     else:
         st.error("Please enter both Player Name and Player ID.")
 
@@ -87,7 +88,7 @@ st.subheader("Player Management")
 search_query = st.text_input("Search for a player by name or ID")
 
 # Filter players from all lists based on the search query
-all_players = pd.concat([active_players, banned_players, former_players], ignore_index=True)
+# Convert 'Player ID' and 'Player Name' columns to strings before applying .str.contains()
 filtered_players = all_players[
     all_players['Player Name'].astype(str).str.contains(search_query, case=False, na=False) |
     all_players['Player ID'].astype(str).str.contains(search_query, case=False, na=False)
@@ -101,6 +102,9 @@ if not filtered_players.empty:
 
     st.write(f"**Player Name**: {selected_player['Player Name']}")
     st.write(f"**Player ID**: {selected_player['Player ID']}")
+    st.write(f"**Joined Time**: {format_datetime(selected_player['Time Added'] if 'Time Added' in selected_player else '')}")
+    st.write(f"**Banned Time**: {format_datetime(selected_player['Time Banned'] if 'Time Banned' in selected_player else '')}")
+    st.write(f"**Removed Time**: {format_datetime(selected_player['Time Removed'] if 'Time Removed' in selected_player else '')}")
 
     # Provide management options
     action = st.radio("Choose an action", ["", "Ban", "Restore", "Remove"])
@@ -114,7 +118,7 @@ if not filtered_players.empty:
                         banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         save_data()
-                        st.experimental_rerun()
+                        st.experimental_rerun()  # Rerun after banning
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
 
@@ -124,7 +128,7 @@ if not filtered_players.empty:
                         active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
                         save_data()
-                        st.experimental_rerun()
+                        st.experimental_rerun()  # Rerun after restoring
                     else:
                         st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
 
@@ -135,7 +139,7 @@ if not filtered_players.empty:
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
                         save_data()
-                        st.experimental_rerun()
+                        st.experimental_rerun()  # Rerun after removing
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already removed.")
     else:
