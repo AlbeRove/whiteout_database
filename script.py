@@ -44,10 +44,37 @@ def format_datetime(dt):
 st.title("[ARW] Players management app")
 st.markdown("by Pollo1907 🐔")
 
-# Add Active Player
-st.subheader("Add Active Player")
-new_player_name = st.text_input("Player Name")
-new_player_id = st.text_input("Player ID")
+# Add custom button styles for "Add Player" (green) and "Ban Player" (red)
+st.markdown(
+    """
+    <style>
+    div.stButton > button:first-child {
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 15px;
+        width: 120px;
+        height: 40px;
+        font-size: 16px;
+    }
+    div.stButton > button:nth-child(2) {
+        background-color: #F44336;
+        color: white;
+        border-radius: 15px;
+        width: 120px;
+        height: 40px;
+        font-size: 16px;
+    }
+    </style>
+    """, 
+    unsafe_allow_html=True
+)
+
+# Add Active Player and Ban Player Buttons
+st.subheader("Add or Ban Player")
+new_player_name = st.text_input("Player Name", key="player_name")
+new_player_id = st.text_input("Player ID", key="player_id")
+
+# Add Player Button
 if st.button("Add Player"):
     if new_player_name and new_player_id:
         # Check if the player ID already exists in any list
@@ -61,9 +88,28 @@ if st.button("Add Player"):
             active_players = pd.concat([active_players, new_entry], ignore_index=True)
             save_data()
             st.success(f"Player {new_player_name} added to Active Players.")
+            # Clear input fields after adding the player
             st.session_state.player_name = ""
             st.session_state.player_id = ""
-            # No rerun here; Streamlit will refresh automatically
+    else:
+        st.error("Please enter both Player Name and Player ID.")
+
+# Ban Player Button
+if st.button("Ban Player"):
+    if new_player_name and new_player_id:
+        # Check if the player exists in active players before banning
+        player_exists = active_players[active_players["Player ID"] == new_player_id]
+        if not player_exists.empty:
+            banned_players.loc[len(banned_players)] = player_exists.iloc[0]
+            banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+            active_players = active_players[active_players["Player ID"] != new_player_id]
+            save_data()
+            st.success(f"Player {new_player_name} has been banned.")
+            # Clear input fields after banning the player
+            st.session_state.player_name = ""
+            st.session_state.player_id = ""
+        else:
+            st.error(f"Player ID {new_player_id} not found in Active Players.")
     else:
         st.error("Please enter both Player Name and Player ID.")
 
@@ -187,8 +233,4 @@ st.download_button(
 # Download Former Players CSV
 csv_former = former_players.to_csv(index=False)
 st.download_button(
-    label="Download Former Players CSV",
-    data=csv_former,
-    file_name="former_players.csv",
-    mime="text/csv"
-)
+    label="Download
