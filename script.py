@@ -11,7 +11,13 @@ FORMER_PLAYERS_FILE = "former_players.csv"
 # Load data from CSV files
 def load_data(file_path, columns):
     if os.path.exists(file_path):
-        return pd.read_csv(file_path)
+        try:
+            df = pd.read_csv(file_path)
+            if df.empty:  # Handle case where CSV exists but has no data
+                return pd.DataFrame(columns=columns)
+            return df
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame(columns=columns)
     return pd.DataFrame(columns=columns)
 
 # Save data to CSV
