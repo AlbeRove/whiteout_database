@@ -33,7 +33,12 @@ former_players = load_data(FORMER_PLAYERS_FILE, ["Player Name", "Player ID", "Ti
 
 # Format date-time function
 def format_datetime(dt):
-    return datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M") if pd.notna(dt) else ""
+    if pd.isna(dt) or dt == "":
+        return ""
+    try:
+        return datetime.strptime(str(dt), "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M")
+    except ValueError:
+        return str(dt)
 
 # Streamlit UI
 st.title("Alliance Players Management")
