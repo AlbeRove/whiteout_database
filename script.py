@@ -71,26 +71,27 @@ def render_table(title, df, action_buttons):
 
             # Settings button to expand actions
             with col4:
-                if st.button("⚙ Settings", key=f"settings_{index}"):
-                    with st.expander(f"Actions for {row['Player Name']}"):
+                if st.button("⚙", key=f"settings_{index}"):
+                    with st.expander("", expanded=True):  # Empty title, expanded to show options
                         if "ban" in action_buttons and st.button("🚫 Ban", key=f"ban_{index}"):
                             banned_players.loc[len(banned_players)] = row
                             banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                             df.drop(index, inplace=True)
                             save_data()
                             st.experimental_rerun()
-
+            
                         if "restore" in action_buttons and st.button("🔄 Restore", key=f"restore_{index}"):
                             active_players.loc[len(active_players)] = row
                             active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                             df.drop(index, inplace=True)
                             save_data()
                             st.experimental_rerun()
-
+            
                         if "remove" in action_buttons and st.button("❌ Remove", key=f"remove_{index}"):
                             df.drop(index, inplace=True)
                             save_data()
                             st.experimental_rerun()
+
     else:
         st.info(f"No {title.lower()} yet.")
 
