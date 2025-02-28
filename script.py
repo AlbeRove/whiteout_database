@@ -31,6 +31,10 @@ active_players = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Ti
 banned_players = load_data(BANNED_PLAYERS_FILE, ["Player Name", "Player ID", "Time Banned"])
 former_players = load_data(FORMER_PLAYERS_FILE, ["Player Name", "Player ID", "Time Removed"])
 
+# Format date-time function
+def format_datetime(dt):
+    return datetime.strptime(dt, "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M") if pd.notna(dt) else ""
+
 # Streamlit UI
 st.title("Alliance Players Management")
 
@@ -48,7 +52,7 @@ if st.button("Add Player"):
     else:
         st.error("Please enter both Player Name and Player ID.")
 
-# Function to render tables with buttons
+# Function to render tables with settings button
 def render_table(title, df, action_buttons):
     st.subheader(title)
 
@@ -58,26 +62,30 @@ def render_table(title, df, action_buttons):
 
             col1.write(row["Player Name"])
             col2.write(row["Player ID"])
-            col3.write(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", ""))))
+            col3.write(format_datetime(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", "")))))
 
-            if "ban" in action_buttons and col4.button("BAN", key=f"ban_{index}"):
-                banned_players.loc[len(banned_players)] = row
-                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-                df.drop(index, inplace=True)
-                save_data()
-                st.experimental_rerun()
+            # Settings button to expand actions
+            with col4:
+                if st.button("⚙ Settings", key=f"settings_{index}"):
+                    with st.expander(f"Actions for {row['Player Name']}"):
+                        if "ban" in action_buttons and st.button("🚫 Ban", key=f"ban_{index}"):
+                            banned_players.loc[len(banned_players)] = row
+                            banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                            df.drop(index, inplace=True)
+                            save_data()
+                            st.experimental_rerun()
 
-            if "restore" in action_buttons and col4.button("RESTORE", key=f"restore_{index}"):
-                active_players.loc[len(active_players)] = row
-                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
-                df.drop(index, inplace=True)
-                save_data()
-                st.experimental_rerun()
+                        if "restore" in action_buttons and st.button("🔄 Restore", key=f"restore_{index}"):
+                            active_players.loc[len(active_players)] = row
+                            active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                            df.drop(index, inplace=True)
+                            save_data()
+                            st.experimental_rerun()
 
-            if "remove" in action_buttons and col4.button("REMOVE", key=f"remove_{index}"):
-                df.drop(index, inplace=True)
-                save_data()
-                st.experimental_rerun()
+                        if "remove" in action_buttons and st.button("❌ Remove", key=f"remove_{index}"):
+                            df.drop(index, inplace=True)
+                            save_data()
+                            st.experimental_rerun()
     else:
         st.info(f"No {title.lower()} yet.")
 
