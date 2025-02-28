@@ -49,9 +49,11 @@ new_player_name = st.text_input("Player Name")
 new_player_id = st.text_input("Player ID")
 if st.button("Add Player"):
     if new_player_name and new_player_id:
-        # Check if the player ID is already in active players list
-        if new_player_id in active_players["Player ID"].values:
-            st.error(f"Player ID {new_player_id} is already in Active Players.")
+        # Check if the player ID already exists in any list
+        if new_player_id in active_players["Player ID"].values or \
+           new_player_id in banned_players["Player ID"].values or \
+           new_player_id in former_players["Player ID"].values:
+            st.error(f"Player ID {new_player_id} already exists in the system.")
         else:
             new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
                                      columns=["Player Name", "Player ID", "Time Added"])
@@ -61,56 +63,83 @@ if st.button("Add Player"):
     else:
         st.error("Please enter both Player Name and Player ID.")
 
-# Function to render tables with action dropdowns
-def render_table(title, df, action_buttons):
+# Function to render tables (without action buttons)
+def render_table(title, df):
     st.subheader(title)
 
     if not df.empty:
         for index, row in df.iterrows():
-            col1, col2, col3, col4 = st.columns([3, 2, 2, 1])
+            col1, col2, col3 = st.columns([3, 2, 2])
 
             col1.write(row["Player Name"])
             col2.write(row["Player ID"])
             col3.write(format_datetime(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", "")))))
-
-            # Action dropdown (instead of expanding)
-            with col4:
-                action = st.selectbox("Choose action", ["", *action_buttons], key=f"action_{index}")
-
-                if action:
-                    with st.spinner(f"Processing {action}..."):
-                        if action == "🚫 Ban":
-                            banned_players.loc[len(banned_players)] = row
-                            banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-                            df.drop(index, inplace=True)
-                            save_data()
-                            st.experimental_rerun()
-            
-                        elif action == "🔄 Move to active":
-                            if row["Player ID"] in active_players["Player ID"].values:
-                                st.error(f"Player {row['Player Name']} is already in Active Players.")
-                            else:
-                                active_players.loc[len(active_players)] = row
-                                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
-                                df.drop(index, inplace=True)
-                                save_data()
-                                st.experimental_rerun()
-            
-                        elif action == "❌ Remove":
-                            # Move player to Former Players instead of just dropping
-                            former_players.loc[len(former_players)] = row
-                            former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
-                            df.drop(index, inplace=True)
-                            save_data()
-                            st.experimental_rerun()
-
     else:
         st.info(f"No {title.lower()} yet.")
 
-# Render tables
-render_table("Active Players", active_players, ["ban", "remove"])
-render_table("Banned Players", banned_players, ["remove"])
-render_table("Former Players", former_players, ["restore", "remove"])
+# Render tables without action buttons
+render_table("Active Players", active_players)
+render_table("Banned Players", banned_players)
+render_table("Former Players", former_players)
+
+# Player Search & Management Section
+st.subheader("Player Management")
+search_query = st.text_input("Search for a player by name or ID")
+
+# Filter players from all lists based on the search query
+all_players = pd.concat([active_players, banned_players, former_players], ignore_index=True)
+filtered_players = all_players[all_players['Player Name'].str.contains(search_query, case=False, na=False) |
+                                all_players['Player ID'].str.contains(search_query, case=False, na=False)]
+
+if not filtered_players.empty:
+    player_to_manage = st.selectbox("Select Player to Manage", filtered_players["Player Name"].unique())
+
+    # Find selected player details
+    selected_player = all_players[all_players["Player Name"] == player_to_manage].iloc[0]
+
+    st.write(f"**Player Name**: {selected_player['Player Name']}")
+    st.write(f"**Player ID**: {selected_player['Player ID']}")
+    st.write(f"**Joined Time**: {format_datetime(selected_player['Time Added'] if 'Time Added' in selected_player else '')}")
+    st.write(f"**Banned Time**: {format_datetime(selected_player['Time Banned'] if 'Time Banned' in selected_player else '')}")
+    st.write(f"**Removed Time**: {format_datetime(selected_player['Time Removed'] if 'Time Removed' in selected_player else '')}")
+
+    # Provide management options
+    action = st.radio("Choose an action", ["", "Ban", "Restore", "Remove"])
+
+    if action:
+        if action == "Ban":
+            if selected_player["Player ID"] in active_players["Player ID"].values:
+                banned_players.loc[len(banned_players)] = selected_player
+                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                save_data()
+                st.experimental_rerun()
+            else:
+                st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
+
+        elif action == "Restore":
+            if selected_player["Player ID"] in banned_players["Player ID"].values:
+                active_players.loc[len(active_players)] = selected_player
+                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                save_data()
+                st.experimental_rerun()
+            else:
+                st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
+
+        elif action == "Remove":
+            if selected_player["Player ID"] not in former_players["Player ID"].values:
+                former_players.loc[len(former_players)] = selected_player
+                former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
+                active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                save_data()
+                st.experimental_rerun()
+            else:
+                st.error(f"Player {selected_player['Player Name']} is already removed.")
+
+else:
+    st.info("No players found. Try refining your search.")
 
 # SAVE button (green, rounded corners)
 st.markdown(
