@@ -41,7 +41,8 @@ def format_datetime(dt):
         return str(dt)
 
 # Streamlit UI
-st.title("Alliance Players Management")
+st.title("[ARW] Players management app")
+st.markdown("by Pollo1907 🐔")
 
 # Add Active Player
 st.subheader("Add Active Player")
@@ -159,3 +160,33 @@ st.markdown(
 if st.button("SAVE"):
     save_data()
     st.success("All data has been saved!")
+
+
+# Add download buttons
+st.subheader("Download Data Files")
+# Download Active Players CSV
+csv_active = active_players.to_csv(index=False)
+st.download_button(
+    label="Download Active Players CSV",
+    data=csv_active,
+    file_name="active_players.csv",
+    mime="text/csv"
+)
+
+# Download Banned Players CSV
+csv_banned = banned_players.to_csv(index=False)
+st.download_button(
+    label="Download Banned Players CSV",
+    data=csv_banned,
+    file_name="banned_players.csv",
+    mime="text/csv"
+)
+
+# Download Former Players CSV
+csv_former = former_players.to_csv(index=False)
+st.download_button(
+    label="Download Former Players CSV",
+    data=csv_former,
+    file_name="former_players.csv",
+    mime="text/csv"
+)
