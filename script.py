@@ -49,15 +49,19 @@ new_player_name = st.text_input("Player Name")
 new_player_id = st.text_input("Player ID")
 if st.button("Add Player"):
     if new_player_name and new_player_id:
-        new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
-                                 columns=["Player Name", "Player ID", "Time Added"])
-        active_players = pd.concat([active_players, new_entry], ignore_index=True)
-        save_data()
-        st.success(f"Player {new_player_name} added to Active Players.")
+        # Check if the player ID is already in active players list
+        if new_player_id in active_players["Player ID"].values:
+            st.error(f"Player ID {new_player_id} is already in Active Players.")
+        else:
+            new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
+                                     columns=["Player Name", "Player ID", "Time Added"])
+            active_players = pd.concat([active_players, new_entry], ignore_index=True)
+            save_data()
+            st.success(f"Player {new_player_name} added to Active Players.")
     else:
         st.error("Please enter both Player Name and Player ID.")
 
-# Function to render tables with settings button
+# Function to render tables with action dropdowns
 def render_table(title, df, action_buttons):
     st.subheader(title)
 
@@ -69,25 +73,30 @@ def render_table(title, df, action_buttons):
             col2.write(row["Player ID"])
             col3.write(format_datetime(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", "")))))
 
-            # Settings button to expand actions
+            # Action dropdown (instead of expanding)
             with col4:
-                if st.button("⚙", key=f"settings_{index}"):
-                    with st.expander("", expanded=True):  # Empty title, expanded to show options
-                        if "ban" in action_buttons and st.button("🚫 Ban", key=f"ban_{index}"):
+                action = st.selectbox("Choose action", ["", *action_buttons], key=f"action_{index}")
+
+                if action:
+                    with st.spinner(f"Processing {action}..."):
+                        if action == "🚫 Ban":
                             banned_players.loc[len(banned_players)] = row
                             banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                             df.drop(index, inplace=True)
                             save_data()
                             st.experimental_rerun()
             
-                        if "restore" in action_buttons and st.button("🔄 Move to active", key=f"restore_{index}"):
-                            active_players.loc[len(active_players)] = row
-                            active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
-                            df.drop(index, inplace=True)
-                            save_data()
-                            st.experimental_rerun()
+                        elif action == "🔄 Move to active":
+                            if row["Player ID"] in active_players["Player ID"].values:
+                                st.error(f"Player {row['Player Name']} is already in Active Players.")
+                            else:
+                                active_players.loc[len(active_players)] = row
+                                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                                df.drop(index, inplace=True)
+                                save_data()
+                                st.experimental_rerun()
             
-                        if "remove" in action_buttons and st.button("❌ Remove", key=f"remove_{index}"):
+                        elif action == "❌ Remove":
                             df.drop(index, inplace=True)
                             save_data()
                             st.experimental_rerun()
@@ -108,4 +117,3 @@ st.markdown(
 if st.button("SAVE"):
     save_data()
     st.success("All data has been saved!")
-
