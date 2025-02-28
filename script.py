@@ -94,8 +94,6 @@ with col1:
                 # Clear input fields after adding the player
                 st.session_state.player_name = ""
                 st.session_state.player_id = ""
-        else:
-            st.error("Please enter both Player Name and Player ID.")
 
 # Ban Player Button in red
 with col2:
@@ -117,17 +115,17 @@ with col2:
         else:
             st.error("Please enter both Player Name and Player ID.")
 
-# Function to render tables (without action buttons)
+# Function to render scrollable tables (with more than 10 entries)
 def render_table(title, df):
     st.subheader(title)
 
     if not df.empty:
-        for index, row in df.iterrows():
-            col1, col2, col3 = st.columns([3, 2, 2])
-
-            col1.write(row["Player Name"])
-            col2.write(row["Player ID"])
-            col3.write(format_datetime(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", "")))))
+        if len(df) > 10:
+            # Add a scrollable table if the table has more than 10 rows
+            st.dataframe(df, height=300)  # This will create a scrollable table
+        else:
+            # Render normal table if less than 10 rows
+            st.table(df)
     else:
         st.info(f"No {title.lower()} yet.")
 
@@ -155,7 +153,7 @@ if not filtered_players.empty:
     selected_player = filtered_players[filtered_players["Player Name"] == player_to_manage].iloc[0]
 
     st.write(f"**Player Name**: {selected_player['Player Name']}")
-    st.write(f"**Player ID**: {selected_player['Player ID']}")
+    st.write(f"**Player ID**: <span style='color: green;'>{selected_player['Player ID']}</span>", unsafe_allow_html=True)
 
     # Provide management options
     action = st.radio("Choose an action", ["Ban", "Restore", "Remove"])
