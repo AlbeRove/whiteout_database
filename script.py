@@ -17,32 +17,21 @@ new_player_id = st.text_input("Player ID", key="player_id")
 # Add Active Player and Ban Player Buttons side by side
 col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
 
-st.markdown(
-    """
-    <style>
-    div.stButton > button:first-child {
-        background-color: #4CAF50 !important; /* Green */
-        color: white !important;
-        border-radius: 10px !important;
-        width: 100px !important;
-        height: 40px !important;
-        font-size: 16px !important;
-    }
-    div.stButton:nth-of-type(2) > button {
-        background-color: #FF4B4B !important; /* Red */
-        color: white !important;
-        border-radius: 10px !important;
-        width: 100px !important;
-        height: 40px !important;
-        font-size: 16px !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # Add Player Button in green
 with col1:
+    st.markdown("""<style>
+                    div.stButton > button:first-child {
+                    background-color: #4CAF50 !important; /* Green */
+                    color: white !important;
+                    border-radius: 10px !important;
+                    width: 100px !important;
+                    height: 40px !important;
+                    font-size: 16px !important;
+                    }
+                    </sstyle>
+                """,
+                unsafe_allow_html=True
+            )
     if st.button("Add Player"):
         if new_player_name and new_player_id:
             # Check if the player ID exists in any list
@@ -71,6 +60,19 @@ with col1:
 
 # Ban Player Button in red
 with col2:
+    st.markdown("""<style>
+                    div.stButton > button:first-child {
+                    background-color: #FF4B4B !important; /* Red */
+                    color: white !important;
+                    border-radius: 10px !important;
+                    width: 100px !important;
+                    height: 40px !important;
+                    font-size: 16px !important;
+                    }
+                    </sstyle>
+                """,
+                unsafe_allow_html=True
+            )
     if st.button("Ban Player"):
         if new_player_name and new_player_id:
             # Check if the player is already in banned or former players
