@@ -23,8 +23,6 @@ active_players = active_load.copy()
 banned_players = banned_load.copy()
 former_players = former_load.copy()
 
-if "player_name" not in st.session_state:
-    st.session_state.player_name = ""
 
 # Player Name and ID input fields
 new_player_name = st.text_input("Player Name", key="player_name")
@@ -59,7 +57,6 @@ with col1:
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
                 save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} added to Active Players.")
-            st.session_state.player_name = ""  # Clear the input field
 
 # Ban Player Button in red
 with col2:
