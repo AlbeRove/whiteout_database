@@ -46,13 +46,13 @@ with col1:
                 # If the player is in former players, move them to active
                 player_in_former = former_players[former_players["Player ID"] == new_player_id]
                 active_players = pd.concat([active_players, player_in_former], ignore_index=True)
-                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M")
+                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M").strftime("%d:%m:%Y %H:%M")
                 former_players = former_players[former_players["Player ID"] != new_player_id]
                 save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} moved to Active Players.")
             else:
                 # If the player is not found in any list, add them to active players
-                new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
+                new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now().strftime("%d:%m:%Y %H:%M")]], 
                                          columns=["Player Name", "Player ID", "Time Added"])
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
                 save_data(active_players, banned_players, former_players)
@@ -69,7 +69,7 @@ with col2:
                 # If the player is in former players, move them to banned players
                 player_in_former = former_players[former_players["Player ID"] == new_player_id]
                 banned_players = pd.concat([banned_players, player_in_former], ignore_index=True)
-                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                 former_players = former_players[former_players["Player ID"] != new_player_id]
                 save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} moved from Former Players to Banned Players.")
@@ -78,13 +78,13 @@ with col2:
                 player_in_active = active_players[active_players["Player ID"] == new_player_id]
                 if not player_in_active.empty:
                     banned_players.loc[len(banned_players)] = player_in_active.iloc[0]
-                    banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                    banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                     active_players = active_players[active_players["Player ID"] != new_player_id]
                     save_data(active_players, banned_players, former_players)
                     st.success(f"Player {new_player_name} has been banned from Active Players.")
                 else:
                     # If the player is not in active, just add them to banned list
-                    new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
+                    new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now().strftime("%d:%m:%Y %H:%M")]], 
                                              columns=["Player Name", "Player ID", "Time Banned"])
                     banned_players = pd.concat([banned_players, new_entry], ignore_index=True)
                     save_data(active_players, banned_players, former_players)
@@ -143,13 +143,13 @@ if not filtered_players.empty:
                 if action == "Ban":
                     if selected_player["Player ID"] in active_players["Player ID"].values:
                         banned_players.loc[len(banned_players)] = selected_player
-                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                     elif selected_player["Player ID"] in former_players["Player ID"].values:
                         banned_players.loc[len(banned_players)] = selected_player
-                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         former_players = former_players[former_players["Player ID"] != selected_player["Player ID"]]
                         save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
@@ -159,7 +159,7 @@ if not filtered_players.empty:
                 elif action == "Re-join alliance":
                     if selected_player["Player ID"] in banned_players["Player ID"].values:
                         active_players.loc[len(active_players)] = selected_player
-                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
                         save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been restored.")
@@ -169,7 +169,7 @@ if not filtered_players.empty:
                 elif action == "Remove from active":
                     if selected_player["Player ID"] not in former_players["Player ID"].values:
                         former_players.loc[len(former_players)] = selected_player
-                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
+                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
                         save_data(active_players, banned_players, former_players)
