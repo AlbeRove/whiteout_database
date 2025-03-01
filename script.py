@@ -23,6 +23,8 @@ active_players = active_load.copy()
 banned_players = banned_load.copy()
 former_players = former_load.copy()
 
+if "player_name" not in st.session_state:
+    st.session_state.player_name = ""
 
 # Player Name and ID input fields
 new_player_name = st.text_input("Player Name", key="player_name")
