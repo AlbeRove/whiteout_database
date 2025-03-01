@@ -46,14 +46,14 @@ with col1:
                 active_players = pd.concat([active_players, player_in_former], ignore_index=True)
                 active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                 former_players = former_players[former_players["Player ID"] != new_player_id]
-                save_data(active_players, banned_players, fromer_players)
+                save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} moved to Active Players.")
             else:
                 # If the player is not found in any list, add them to active players
                 new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
                                          columns=["Player Name", "Player ID", "Time Added"])
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
-                save_data(active_players, banned_players, fromer_players)
+                save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} added to Active Players.")
 
 # Ban Player Button in red
@@ -69,7 +69,7 @@ with col2:
                 banned_players = pd.concat([banned_players, player_in_former], ignore_index=True)
                 banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                 former_players = former_players[former_players["Player ID"] != new_player_id]
-                save_data(active_players, banned_players, fromer_players)
+                save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} moved from Former Players to Banned Players.")
             else:
                 # If the player is in active players, move them to banned
@@ -78,14 +78,14 @@ with col2:
                     banned_players.loc[len(banned_players)] = player_in_active.iloc[0]
                     banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                     active_players = active_players[active_players["Player ID"] != new_player_id]
-                    save_data(active_players, banned_players, fromer_players)
+                    save_data(active_players, banned_players, former_players)
                     st.success(f"Player {new_player_name} has been banned from Active Players.")
                 else:
                     # If the player is not in active, just add them to banned list
                     new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
                                              columns=["Player Name", "Player ID", "Time Banned"])
                     banned_players = pd.concat([banned_players, new_entry], ignore_index=True)
-                    save_data(active_players, banned_players, fromer_players)
+                    save_data(active_players, banned_players, former_players)
                     st.success(f"Player {new_player_name} has been directly added to Banned Players.")
 
 
@@ -143,13 +143,13 @@ if not filtered_players.empty:
                         banned_players.loc[len(banned_players)] = selected_player
                         banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, fromer_players)
+                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                     elif selected_player["Player ID"] in former_players["Player ID"].values:
                         banned_players.loc[len(banned_players)] = selected_player
                         banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
                         former_players = former_players[former_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, fromer_players)
+                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
@@ -159,7 +159,7 @@ if not filtered_players.empty:
                         active_players.loc[len(active_players)] = selected_player
                         active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, fromer_players)
+                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been restored.")
                     else:
                         st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
@@ -170,7 +170,7 @@ if not filtered_players.empty:
                         former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, fromer_players)
+                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been removed.")
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already removed.")
@@ -186,7 +186,7 @@ else:
 
 st.markdown('<div class="green-button">', unsafe_allow_html=True)
 if st.button("SAVE"):
-    save_data(active_players, banned_players, fromer_players)
+    save_data(active_players, banned_players, former_players)
     st.success("All data has been saved!")
 st.markdown("</div>", unsafe_allow_html=True)
 
