@@ -19,6 +19,13 @@ col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
 st.markdown(
     """
     <style>
+    .stButton > button {
+        border-radius: 10px !important;
+        width: 120px !important;
+        height: 40px !important;
+        font-size: 16px !important;
+    }
+    
     .green-button > button {
         background-color: #4CAF50 !important; /* Green */
         color: white !important;
