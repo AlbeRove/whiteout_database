@@ -69,7 +69,7 @@ with col1:
                 active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                 former_players = former_players[former_players["Player ID"] != new_player_id]
                 save_data()
-                st.success(f"Player {new_player_name} moved from Former Players to Active Players.")
+                st.success(f"Player {new_player_name} moved to Active Players.")
             else:
                 # If the player is not found in any list, add them to active players
                 new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
@@ -79,8 +79,7 @@ with col1:
                 st.success(f"Player {new_player_name} added to Active Players.")
         
         # Clear input fields *before* using the session_state variables
-        st.session_state["player_name"] = ""
-        st.session_state["player_id"] = ""
+
 
 # Ban Player Button in red
 with col2:
@@ -115,8 +114,8 @@ with col2:
                     st.success(f"Player {new_player_name} has been directly added to Banned Players.")
         
         # Clear input fields *before* using the session_state variables
-        st.session_state["player_name"] = ""
-        st.session_state["player_id"] = ""
+#        st.session_state["player_name"] = ""
+#        st.session_state["player_id"] = ""
 
 # Function to render tables (with scroll functionality if more than 10 entries)
 def render_table(title, df):
