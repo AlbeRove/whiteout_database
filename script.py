@@ -4,13 +4,6 @@ import os
 from datetime import datetime
 from utils import *
 
-# File paths for CSV storage
-ACTIVE_PLAYERS_FILE = "active_players.csv"
-BANNED_PLAYERS_FILE = "banned_players.csv"
-FORMER_PLAYERS_FILE = "former_players.csv"
-
-
-
 # Streamlit UI
 st.title("[ARW] Players management app")
 st.markdown("by Pollo1907 🐔")
