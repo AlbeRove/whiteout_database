@@ -17,7 +17,7 @@ def load_data(file_path, columns):
     return pd.DataFrame(columns=columns)
 
 # Save data to CSV
-def save_data():
+def save_data(active_players, banned_players, fromer_players):
     active_players.to_csv(ACTIVE_PLAYERS_FILE, index=False)
     banned_players.to_csv(BANNED_PLAYERS_FILE, index=False)
     former_players.to_csv(FORMER_PLAYERS_FILE, index=False)
