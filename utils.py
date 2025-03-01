@@ -29,7 +29,7 @@ def save_data():
     # Add Git commands to push changes
     subprocess.run(["git", "add", "active_players.csv", "banned_players.csv", "former_players.csv"])
     subprocess.run(["git", "commit", "-m", "Updated player data"])
-    subprocess.run(["git", "push", "origin", "main"])  # Adjust branch name if needed
+    subprocess.run(["git", "push", "origin", "master"])  # Adjust branch name if needed
 
 # Initialize player lists
 active_players = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Time Added"])
