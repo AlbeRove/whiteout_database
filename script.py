@@ -10,6 +10,18 @@ import subprocess
 st.title("[ARW] Players management app")
 st.markdown("by Pollo1907 🐔")
 
+# File paths for CSV storage
+ACTIVE_PLAYERS_FILE = "active_players.csv"
+BANNED_PLAYERS_FILE = "banned_players.csv"
+FORMER_PLAYERS_FILE = "former_players.csv"
+# Initialize player lists
+active_load = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Time Added"])
+banned_load = load_data(BANNED_PLAYERS_FILE, ["Player Name", "Player ID", "Time Banned"])
+former_load = load_data(FORMER_PLAYERS_FILE, ["Player Name", "Player ID", "Time Removed"])
+
+active_players = active_load.copy()
+banned_players = banned_load.copy()
+former_players = former_load.copy()
 
 
 # Player Name and ID input fields
