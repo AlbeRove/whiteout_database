@@ -149,7 +149,7 @@ if not filtered_players.empty:
     st.write(f"**Player ID**: {selected_player['Player ID']}")
 
     # Provide management options
-    action = st.radio("Choose an action", ["Ban", "Restore", "Remove"])
+    action = st.radio("Choose an action", ["Ban", "Re-join alliance", "Remove from alliance"])
 
     if action:
         if st.button("Confirm"):
@@ -165,7 +165,7 @@ if not filtered_players.empty:
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
 
-                elif action == "Restore":
+                elif action == "Re-join alliance":
                     if selected_player["Player ID"] in banned_players["Player ID"].values:
                         active_players.loc[len(active_players)] = selected_player
                         active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
@@ -176,7 +176,7 @@ if not filtered_players.empty:
                     else:
                         st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
 
-                elif action == "Remove":
+                elif action == "Remove from active":
                     if selected_player["Player ID"] not in former_players["Player ID"].values:
                         former_players.loc[len(former_players)] = selected_player
                         former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
@@ -197,11 +197,7 @@ else:
 
 
 
-# SAVE button (green, rounded corners)
-st.markdown(
-    "<style> div.stButton > button:first-child { background-color: #4CAF50; color: white; border-radius: 15px; width: 100px; height: 40px; font-size: 16px; } </style>", 
-    unsafe_allow_html=True
-)
+
 if st.button("SAVE"):
     save_data()
     st.success("All data has been saved!")
