@@ -139,6 +139,76 @@ render_table("Active Players", active_players)
 render_table("Banned Players", banned_players)
 render_table("Former Players", former_players)
 
+# Player Search & Management Section
+st.subheader("Player Management")
+search_query = st.text_input("Search for a player by name or ID")
+
+# Filter players from all lists based on the search query
+# Convert 'Player ID' and 'Player Name' columns to strings before applying .str.contains()
+filtered_players = pd.concat([active_players, banned_players, former_players])
+filtered_players = filtered_players[
+    filtered_players['Player Name'].astype(str).str.contains(search_query, case=False, na=False) |
+    filtered_players['Player ID'].astype(str).str.contains(search_query, case=False, na=False)
+]
+
+if not filtered_players.empty:
+    player_to_manage = st.selectbox("Select Player to Manage", filtered_players["Player Name"].unique())
+
+    # Find selected player details
+    selected_player = filtered_players[filtered_players["Player Name"] == player_to_manage].iloc[0]
+
+    st.write(f"**Player Name**: {selected_player['Player Name']}")
+    st.write(f"**Player ID**: {selected_player['Player ID']}")
+
+    # Provide management options
+    action = st.radio("Choose an action", ["Ban", "Restore", "Remove"])
+
+    if action:
+        if st.button("Confirm"):
+            with st.spinner(f"Processing {action}..."):
+                if action == "Ban":
+                    if selected_player["Player ID"] in active_players["Player ID"].values:
+                        banned_players.loc[len(banned_players)] = selected_player
+                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been banned.")
+                        # No rerun here; Streamlit will refresh automatically
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
+
+                elif action == "Restore":
+                    if selected_player["Player ID"] in banned_players["Player ID"].values:
+                        active_players.loc[len(active_players)] = selected_player
+                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been restored.")
+                        # No rerun here; Streamlit will refresh automatically
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
+
+                elif action == "Remove":
+                    if selected_player["Player ID"] not in former_players["Player ID"].values:
+                        former_players.loc[len(former_players)] = selected_player
+                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
+                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been removed.")
+                        # No rerun here; Streamlit will refresh automatically
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is already removed.")
+                st.rerun()
+                
+    else:
+        st.info("Select an action and click Confirm.")
+
+else:
+    st.info("No players found. Try refining your search.")
+
+
+
 # SAVE button (green, rounded corners)
 st.markdown(
     "<style> div.stButton > button:first-child { background-color: #4CAF50; color: white; border-radius: 15px; width: 100px; height: 40px; font-size: 16px; } </style>", 
