@@ -2,54 +2,51 @@ import streamlit as st
 import pandas as pd
 import os
 from datetime import datetime
+from utils import *
 
 # File paths for CSV storage
 ACTIVE_PLAYERS_FILE = "active_players.csv"
 BANNED_PLAYERS_FILE = "banned_players.csv"
 FORMER_PLAYERS_FILE = "former_players.csv"
 
-# Load data from CSV files
-def load_data(file_path, columns):
-    if os.path.exists(file_path):
-        try:
-            df = pd.read_csv(file_path)
-            if df.empty:
-                return pd.DataFrame(columns=columns)
-            return df
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame(columns=columns)
-    return pd.DataFrame(columns=columns)
 
-# Save data to CSV
-def save_data():
-    active_players.to_csv(ACTIVE_PLAYERS_FILE, index=False)
-    banned_players.to_csv(BANNED_PLAYERS_FILE, index=False)
-    former_players.to_csv(FORMER_PLAYERS_FILE, index=False)
-
-# Initialize player lists
-active_players = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Time Added"])
-banned_players = load_data(BANNED_PLAYERS_FILE, ["Player Name", "Player ID", "Time Banned"])
-former_players = load_data(FORMER_PLAYERS_FILE, ["Player Name", "Player ID", "Time Removed"])
-
-# Format date-time function
-def format_datetime(dt):
-    if pd.isna(dt) or dt == "":
-        return ""
-    try:
-        return datetime.strptime(str(dt), "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M")
-    except ValueError:
-        return str(dt)
 
 # Streamlit UI
 st.title("[ARW] Players management app")
 st.markdown("by Pollo1907 🐔")
 
-# Add Active Player and Ban Player Buttons side by side
-col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
+
 
 # Player Name and ID input fields
 new_player_name = st.text_input("Player Name", key="player_name")
 new_player_id = st.text_input("Player ID", key="player_id")
+
+# Add Active Player and Ban Player Buttons side by side
+col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
+
+st.markdown(
+    """
+    <style>
+    div.stButton > button:first-child {
+        background-color: #4CAF50 !important; /* Green */
+        color: white !important;
+        border-radius: 10px !important;
+        width: 100px !important;
+        height: 40px !important;
+        font-size: 16px !important;
+    }
+    div.stButton:nth-of-type(2) > button {
+        background-color: #FF4B4B !important; /* Red */
+        color: white !important;
+        border-radius: 10px !important;
+        width: 100px !important;
+        height: 40px !important;
+        font-size: 16px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Add Player Button in green
 with col1:
@@ -127,7 +124,7 @@ def render_table(title, df):
                 col1, col2, col3 = st.columns([3, 2, 2])
 
                 col1.write(row["Player Name"])
-                col2.write(f"<p style='color: white;'>{row['Player ID']}</p>", unsafe_allow_html=True)  # Player ID in white
+                col2.write(f"<p style='color: white;'>{row['Player ID']}</p>", unsafe_allow_html=True)
                 col3.write(format_datetime(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", "")))))
     else:
         st.info(f"No {title.lower()} yet.")
@@ -220,27 +217,21 @@ if st.button("SAVE"):
 st.subheader("Download Data Files")
 # Download Active Players CSV
 csv_active = active_players.to_csv(index=False)
-st.download_button(
-    label="Download Active Players CSV",
-    data=csv_active,
-    file_name="active_players.csv",
-    mime="text/csv"
-)
+st.download_button(label="Download Active Players CSV",
+                   data=csv_active,
+                   file_name="active_players.csv",
+                   mime="text/csv")
 
 # Download Banned Players CSV
 csv_banned = banned_players.to_csv(index=False)
-st.download_button(
-    label="Download Banned Players CSV",
-    data=csv_banned,
-    file_name="banned_players.csv",
-    mime="text/csv"
-)
+st.download_button(label="Download Banned Players CSV",
+                   data=csv_banned,
+                   file_name="banned_players.csv",
+                   mime="text/csv")
 
 # Download Former Players CSV
 csv_former = former_players.to_csv(index=False)
-st.download_button(
-    label="Download Former Players CSV",
-    data=csv_former,
-    file_name="former_players.csv",
-    mime="text/csv"
-)
+st.download_button(label="Download Former Players CSV",
+                   data=csv_former,
+                   file_name="former_players.csv",
+                   mime="text/csv")
