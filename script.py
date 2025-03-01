@@ -44,6 +44,12 @@ def format_datetime(dt):
 st.title("[ARW] Players management app")
 st.markdown("by Pollo1907 🐔")
 
+# Ensure session state keys exist
+if "player_name" not in st.session_state:
+    st.session_state.player_name = ""
+if "player_id" not in st.session_state:
+    st.session_state.player_id = ""
+
 # Add Active Player and Ban Player Buttons side by side
 st.subheader("Add or Ban Player")
 new_player_name = st.text_input("Player Name", key="player_name")
@@ -175,35 +181,4 @@ if not filtered_players.empty:
                         active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
                         save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been restored.")
-                        # No rerun here; Streamlit will refresh automatically
-                    else:
-                        st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
-
-                elif action == "Remove":
-                    if selected_player["Player ID"] not in former_players["Player ID"].values:
-                        former_players.loc[len(former_players)] = selected_player
-                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
-                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been removed.")
-                        # No rerun here; Streamlit will refresh automatically
-                    else:
-                        st.error(f"Player {selected_player['Player Name']} is already removed.")
-                st.rerun()
-
-    else:
-        st.info("Select an action and click Confirm.")
-
-else:
-    st.info("No players found. Try refining your search.")
-
-# SAVE button (green, rounded corners)
-st.markdown(
-    "<style> div.stButton > button:first-child { background-color: #4CAF50; color: white; border-radius: 15px; width: 100px; height: 40px; font-size: 16px; } </style>", 
-    unsafe_allow_html=True
-)
-if st.button("SAVE"):
-    save_data()
-    st.success("All data has been saved!")
+                        st.success(f"Player {selected_player['Player Name']} has been restored
