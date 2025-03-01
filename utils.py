@@ -3,10 +3,6 @@ from datetime import datetime
 import os
 import subprocess
 
-# File paths for CSV storage
-ACTIVE_PLAYERS_FILE = "active_players.csv"
-BANNED_PLAYERS_FILE = "banned_players.csv"
-FORMER_PLAYERS_FILE = "former_players.csv"
 
 # Load data from CSV files
 def load_data(file_path, columns):
@@ -31,10 +27,6 @@ def save_data():
     subprocess.run(["git", "commit", "-m", "Updated player data"])
     subprocess.run(["git", "push", "origin", "master"])  # Adjust branch name if needed
 
-# Initialize player lists
-active_players = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Time Added"])
-banned_players = load_data(BANNED_PLAYERS_FILE, ["Player Name", "Player ID", "Time Banned"])
-former_players = load_data(FORMER_PLAYERS_FILE, ["Player Name", "Player ID", "Time Removed"])
 
 # Format date-time function
 def format_datetime(dt):
