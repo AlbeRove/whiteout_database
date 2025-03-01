@@ -57,23 +57,30 @@ with col2:
 with col1:
     if st.button("Add Player"):
         if new_player_name and new_player_id:
-            # Check if the player ID already exists in any list
-            if new_player_id in active_players["Player ID"].values or \
-               new_player_id in banned_players["Player ID"].values or \
-               new_player_id in former_players["Player ID"].values:
-                st.error(f"Player ID {new_player_id} already exists in the system.")
+            # Check if the player ID exists in any list
+            if new_player_id in active_players["Player ID"].values:
+                st.error(f"Player ID {new_player_id} is already in Active Players.")
             elif new_player_id in banned_players["Player ID"].values:
                 st.warning(f"Player ID {new_player_id} is currently banned. Cannot add as an active player.")
+            elif new_player_id in former_players["Player ID"].values:
+                # If the player is in former players, move them to active
+                player_in_former = former_players[former_players["Player ID"] == new_player_id]
+                active_players = pd.concat([active_players, player_in_former], ignore_index=True)
+                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                former_players = former_players[former_players["Player ID"] != new_player_id]
+                save_data()
+                st.success(f"Player {new_player_name} moved from Former Players to Active Players.")
             else:
-                # Add player to active list
+                # If the player is not found in any list, add them to active players
                 new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
                                          columns=["Player Name", "Player ID", "Time Added"])
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
                 save_data()
                 st.success(f"Player {new_player_name} added to Active Players.")
-                # Clear input fields *before* using the session_state variables
-                st.session_state["player_name"] = ""
-                st.session_state["player_id"] = ""
+        
+        # Clear input fields *before* using the session_state variables
+        st.session_state["player_name"] = ""
+        st.session_state["player_id"] = ""
 
 # Ban Player Button in red
 with col2:
