@@ -26,6 +26,8 @@ former_players = former_load.copy()
 
 # Player Name and ID input fields
 new_player_name = st.text_input("Player Name", key="player_name")
+new_player_name = new_player_name.replace("[ARW]", "")
+
 new_player_id = st.text_input("Player ID", key="player_id")
 
 # Add Active Player and Ban Player Buttons side by side
