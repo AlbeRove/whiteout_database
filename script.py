@@ -48,10 +48,8 @@ st.markdown("by Pollo1907 🐔")
 col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
 
 # Player Name and ID input fields
-with col1:
-    new_player_name = st.text_input("Player Name", key="player_name")
-with col2:
-    new_player_id = st.text_input("Player ID", key="player_id")
+new_player_name = st.text_input("Player Name", key="player_name")
+new_player_id = st.text_input("Player ID", key="player_id")
 
 # Add Player Button in green
 with col1:
