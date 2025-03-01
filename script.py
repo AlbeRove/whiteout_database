@@ -46,7 +46,7 @@ with col1:
                 # If the player is in former players, move them to active
                 player_in_former = former_players[former_players["Player ID"] == new_player_id]
                 active_players = pd.concat([active_players, player_in_former], ignore_index=True)
-                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                 former_players = former_players[former_players["Player ID"] != new_player_id]
                 save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} moved to Active Players.")
