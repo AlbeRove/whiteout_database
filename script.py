@@ -169,4 +169,64 @@ if not filtered_players.empty:
                         save_data()
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                     else:
-                        # If not i
+                        # If not in active players, directly add to banned
+                        banned_players.loc[len(banned_players)] = selected_player
+                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been added to Banned Players.")
+                elif action == "Restore":
+                    if selected_player["Player ID"] in banned_players["Player ID"].values:
+                        active_players.loc[len(active_players)] = selected_player
+                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
+                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been restored.")
+                elif action == "Remove":
+                    if selected_player["Player ID"] not in former_players["Player ID"].values:
+                        former_players.loc[len(former_players)] = selected_player
+                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
+                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
+                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been removed.")
+                    else:
+                        st.error(f"Player {selected_player['Player Name']} is already removed.")
+                st.rerun()
+
+# SAVE button (green, rounded corners)
+st.markdown(
+    "<style> div.stButton > button:first-child { background-color: #4CAF50; color: white; border-radius: 15px; width: 100px; height: 40px; font-size: 16px; } </style>", 
+    unsafe_allow_html=True
+)
+if st.button("SAVE"):
+    save_data()
+    st.success("All data has been saved!")
+
+# Add download buttons
+st.subheader("Download Data Files")
+# Download Active Players CSV
+csv_active = active_players.to_csv(index=False)
+st.download_button(
+    label="Download Active Players CSV",
+    data=csv_active,
+    file_name="active_players.csv",
+    mime="text/csv"
+)
+
+# Download Banned Players CSV
+csv_banned = banned_players.to_csv(index=False)
+st.download_button(
+    label="Download Banned Players CSV",
+    data=csv_banned,
+    file_name="banned_players.csv",
+    mime="text/csv"
+)
+
+# Download Former Players CSV
+csv_former = former_players.to_csv(index=False)
+st.download_button(
+    label="Download Former Players CSV",
+    data=csv_former,
+    file_name="former_players.csv",
+    mime="text/csv"
+)
