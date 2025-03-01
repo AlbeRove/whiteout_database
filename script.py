@@ -57,7 +57,7 @@ new_player_id = st.text_input("Player ID", key="player_id")
 
 col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
 
-# Add Player Button in green (via Markdown with custom HTML)
+# Add Player Button in green
 with col1:
     if st.button("Add Player"):
         if new_player_name and new_player_id:
@@ -79,7 +79,7 @@ with col1:
                 st.session_state.player_name = ""
                 st.session_state.player_id = ""
 
-# Ban Player Button logic
+# Ban Player Button in red
 with col2:
     if st.button("Ban Player"):
         if new_player_name and new_player_id:
@@ -168,17 +168,5 @@ if not filtered_players.empty:
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         save_data()
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
-                        # No rerun here; Streamlit will refresh automatically
                     else:
-                        # If not in active players, directly add to banned
-                        banned_players.loc[len(banned_players)] = selected_player
-                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been added to Banned Players.")
-                elif action == "Restore":
-                    if selected_player["Player ID"] in banned_players["Player ID"].values:
-                        active_players.loc[len(active_players)] = selected_player
-                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
-                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been restored
+                        # If not i
