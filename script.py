@@ -57,6 +57,7 @@ with col1:
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
                 save_data(active_players, banned_players, former_players)
                 st.success(f"Player {new_player_name} added to Active Players.")
+            st.session_state.player_name = ""  # Clear the input field
 
 # Ban Player Button in red
 with col2:
