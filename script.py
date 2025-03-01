@@ -208,10 +208,11 @@ else:
 
 
 
-
+st.markdown('<div class="green-button">', unsafe_allow_html=True)
 if st.button("SAVE"):
     save_data()
     st.success("All data has been saved!")
+st.markdown("</div>", unsafe_allow_html=True)
 
 # Add download buttons
 st.subheader("Download Data Files")
