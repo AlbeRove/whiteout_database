@@ -3,6 +3,9 @@ from datetime import datetime
 import os
 import subprocess
 
+ACTIVE_PLAYERS_FILE = "active_players.csv"
+BANNED_PLAYERS_FILE = "banned_players.csv"
+FORMER_PLAYERS_FILE = "former_players.csv"
 
 # Load data from CSV files
 def load_data(file_path, columns):
