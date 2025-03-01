@@ -89,7 +89,7 @@ with col2:
                 save_data()
                 st.success(f"Player {new_player_name} moved from Former Players to Banned Players.")
             else:
-                # If the player is in active players, ban them
+                # If the player is in active players, move them to banned
                 player_in_active = active_players[active_players["Player ID"] == new_player_id]
                 if not player_in_active.empty:
                     banned_players.loc[len(banned_players)] = player_in_active.iloc[0]
@@ -98,7 +98,13 @@ with col2:
                     save_data()
                     st.success(f"Player {new_player_name} has been banned from Active Players.")
                 else:
-                    st.error(f"Player ID {new_player_id} not found in Active Players.")
+                    # If the player is not in active, just add them to banned list
+                    new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now()]], 
+                                             columns=["Player Name", "Player ID", "Time Banned"])
+                    banned_players = pd.concat([banned_players, new_entry], ignore_index=True)
+                    save_data()
+                    st.success(f"Player {new_player_name} has been directly added to Banned Players.")
+        
         # Clear input fields after banning the player
         st.session_state.player_name = ""
         st.session_state.player_id = ""
@@ -158,8 +164,11 @@ if not filtered_players.empty:
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                         # No rerun here; Streamlit will refresh automatically
                     else:
-                        st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
-
+                        # If not in active players, directly add to banned
+                        banned_players.loc[len(banned_players)] = selected_player
+                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
+                        save_data()
+                        st.success(f"Player {selected_player['Player Name']} has been added to Banned Players.")
                 elif action == "Restore":
                     if selected_player["Player ID"] in banned_players["Player ID"].values:
                         active_players.loc[len(active_players)] = selected_player
@@ -183,7 +192,7 @@ if not filtered_players.empty:
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already removed.")
                 st.rerun()
-                
+
     else:
         st.info("Select an action and click Confirm.")
 
@@ -198,34 +207,3 @@ st.markdown(
 if st.button("SAVE"):
     save_data()
     st.success("All data has been saved!")
-
-
-
-# Add download buttons
-st.subheader("Download Data Files")
-# Download Active Players CSV
-csv_active = active_players.to_csv(index=False)
-st.download_button(
-    label="Download Active Players CSV",
-    data=csv_active,
-    file_name="active_players.csv",
-    mime="text/csv"
-)
-
-# Download Banned Players CSV
-csv_banned = banned_players.to_csv(index=False)
-st.download_button(
-    label="Download Banned Players CSV",
-    data=csv_banned,
-    file_name="banned_players.csv",
-    mime="text/csv"
-)
-
-# Download Former Players CSV
-csv_former = former_players.to_csv(index=False)
-st.download_button(
-    label="Download Former Players CSV",
-    data=csv_former,
-    file_name="former_players.csv",
-    mime="text/csv"
-)
