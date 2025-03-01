@@ -1,6 +1,7 @@
 import pandas as pd
 from datetime import datetime
 import os
+import subprocess
 
 # File paths for CSV storage
 ACTIVE_PLAYERS_FILE = "active_players.csv"
