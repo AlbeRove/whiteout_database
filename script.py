@@ -16,22 +16,34 @@ new_player_id = st.text_input("Player ID", key="player_id")
 
 # Add Active Player and Ban Player Buttons side by side
 col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
-st.markdown("""<style>
-                div.stButton > button:first-child {
-                background-color: #4CAF50 !important; /* Green */
-                color: white !important;
-                border-radius: 10px !important;
-                width: 100px !important;
-                height: 40px !important;
-                font-size: 16px !important;
-                }
-                </sstyle>
-            """,
-            unsafe_allow_html=True
-        )
+st.markdown(
+    """
+    <style>
+    .green-button > button {
+        background-color: #4CAF50 !important; /* Green */
+        color: white !important;
+        border-radius: 10px !important;
+        width: 120px !important;
+        height: 40px !important;
+        font-size: 16px !important;
+    }
+    
+    .red-button > button {
+        background-color: #FF4B4B !important; /* Red */
+        color: white !important;
+        border-radius: 10px !important;
+        width: 120px !important;
+        height: 40px !important;
+        font-size: 16px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Add Player Button
 with col1:
+    green_button = st.markdown('<div class="green-button">', unsafe_allow_html=True)
     if st.button("Add Player"):
         if new_player_name and new_player_id:
             # Check if the player ID exists in any list
@@ -54,12 +66,14 @@ with col1:
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
                 save_data()
                 st.success(f"Player {new_player_name} added to Active Players.")
-        
+    st.markdown("</div>", unsafe_allow_html=True)
+
         # Clear input fields *before* using the session_state variables
 
 
 # Ban Player Button in red
 with col2:
+    red_button = st.markdown('<div class="red-button">', unsafe_allow_html=True)
     if st.button("Ban Player"):
         if new_player_name and new_player_id:
             # Check if the player is already in banned or former players
@@ -89,7 +103,8 @@ with col2:
                     banned_players = pd.concat([banned_players, new_entry], ignore_index=True)
                     save_data()
                     st.success(f"Player {new_player_name} has been directly added to Banned Players.")
-        
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 # Function to render tables (with scroll functionality if more than 10 entries)
 def render_table(title, df):
