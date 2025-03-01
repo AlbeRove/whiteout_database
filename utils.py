@@ -25,6 +25,11 @@ def save_data():
     banned_players.to_csv(BANNED_PLAYERS_FILE, index=False)
     former_players.to_csv(FORMER_PLAYERS_FILE, index=False)
 
+    # Add Git commands to push changes
+    subprocess.run(["git", "add", "active_players.csv", "banned_players.csv", "former_players.csv"])
+    subprocess.run(["git", "commit", "-m", "Updated player data"])
+    subprocess.run(["git", "push", "origin", "main"])  # Adjust branch name if needed
+
 # Initialize player lists
 active_players = load_data(ACTIVE_PLAYERS_FILE, ["Player Name", "Player ID", "Time Added"])
 banned_players = load_data(BANNED_PLAYERS_FILE, ["Player Name", "Player ID", "Time Banned"])
