@@ -22,11 +22,6 @@ def save_data():
     banned_players.to_csv(BANNED_PLAYERS_FILE, index=False)
     former_players.to_csv(FORMER_PLAYERS_FILE, index=False)
 
-    # Add Git commands to push changes
-    subprocess.run(["git", "add", "active_players.csv", "banned_players.csv", "former_players.csv"])
-    subprocess.run(["git", "commit", "-m", "Updated player data"])
-    subprocess.run(["git", "push", "origin", "master"])  # Adjust branch name if needed
-
 
 # Format date-time function
 def format_datetime(dt):
