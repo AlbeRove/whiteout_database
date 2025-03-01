@@ -44,18 +44,14 @@ def format_datetime(dt):
 st.title("[ARW] Players management app")
 st.markdown("by Pollo1907 🐔")
 
-# Ensure session state keys exist
-if "player_name" not in st.session_state:
-    st.session_state.player_name = ""
-if "player_id" not in st.session_state:
-    st.session_state.player_id = ""
-
 # Add Active Player and Ban Player Buttons side by side
-st.subheader("Add or Ban Player")
-new_player_name = st.text_input("Player Name", key="player_name")
-new_player_id = st.text_input("Player ID", key="player_id")
-
 col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
+
+# Player Name and ID input fields
+with col1:
+    new_player_name = st.text_input("Player Name", key="player_name")
+with col2:
+    new_player_id = st.text_input("Player ID", key="player_id")
 
 # Add Player Button in green
 with col1:
@@ -75,9 +71,9 @@ with col1:
                 active_players = pd.concat([active_players, new_entry], ignore_index=True)
                 save_data()
                 st.success(f"Player {new_player_name} added to Active Players.")
-                # Clear input fields after adding the player
-                st.session_state.player_name = ""
-                st.session_state.player_id = ""
+                # Clear input fields *before* using the session_state variables
+                st.session_state["player_name"] = ""
+                st.session_state["player_id"] = ""
 
 # Ban Player Button in red
 with col2:
@@ -111,21 +107,24 @@ with col2:
                     save_data()
                     st.success(f"Player {new_player_name} has been directly added to Banned Players.")
         
-        # Clear input fields after banning the player
-        st.session_state.player_name = ""
-        st.session_state.player_id = ""
+        # Clear input fields *before* using the session_state variables
+        st.session_state["player_name"] = ""
+        st.session_state["player_id"] = ""
 
-# Render tables with scroll feature for more than 10 entries
+# Function to render tables (with scroll functionality if more than 10 entries)
 def render_table(title, df):
     st.subheader(title)
 
     if not df.empty:
         if len(df) > 10:
-            # Add a scrollable table if the table has more than 10 rows
-            st.dataframe(df, height=300)  # This will create a scrollable table
+            st.dataframe(df, height=300)  # Scrollable table if more than 10 rows
         else:
-            # Render normal table if less than 10 rows
-            st.table(df)
+            for index, row in df.iterrows():
+                col1, col2, col3 = st.columns([3, 2, 2])
+
+                col1.write(row["Player Name"])
+                col2.write(f"<p style='color: white;'>{row['Player ID']}</p>", unsafe_allow_html=True)  # Player ID in white
+                col3.write(format_datetime(row.get("Time Added", row.get("Time Banned", row.get("Time Removed", "")))))
     else:
         st.info(f"No {title.lower()} yet.")
 
@@ -133,65 +132,6 @@ def render_table(title, df):
 render_table("Active Players", active_players)
 render_table("Banned Players", banned_players)
 render_table("Former Players", former_players)
-
-# Player Search & Management Section
-st.subheader("Player Management")
-search_query = st.text_input("Search for a player by name or ID")
-
-# Filter players from all lists based on the search query
-# Convert 'Player ID' and 'Player Name' columns to strings before applying .str.contains()
-filtered_players = pd.concat([active_players, banned_players, former_players])
-filtered_players = filtered_players[
-    filtered_players['Player Name'].astype(str).str.contains(search_query, case=False, na=False) |
-    filtered_players['Player ID'].astype(str).str.contains(search_query, case=False, na=False)
-]
-
-if not filtered_players.empty:
-    player_to_manage = st.selectbox("Select Player to Manage", filtered_players["Player Name"].unique())
-
-    # Find selected player details
-    selected_player = filtered_players[filtered_players["Player Name"] == player_to_manage].iloc[0]
-
-    st.write(f"**Player Name**: {selected_player['Player Name']}")
-    st.write(f"**Player ID**: {selected_player['Player ID']}")  # Player ID now in default white color
-
-    # Provide management options
-    action = st.radio("Choose an action", ["Ban", "Restore", "Remove"])
-
-    if action:
-        if st.button("Confirm"):
-            with st.spinner(f"Processing {action}..."):
-                if action == "Ban":
-                    if selected_player["Player ID"] in active_players["Player ID"].values:
-                        banned_players.loc[len(banned_players)] = selected_player
-                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been banned.")
-                    else:
-                        # If not in active players, directly add to banned
-                        banned_players.loc[len(banned_players)] = selected_player
-                        banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now()
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been added to Banned Players.")
-                elif action == "Restore":
-                    if selected_player["Player ID"] in banned_players["Player ID"].values:
-                        active_players.loc[len(active_players)] = selected_player
-                        active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now()
-                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been restored.")
-                elif action == "Remove":
-                    if selected_player["Player ID"] not in former_players["Player ID"].values:
-                        former_players.loc[len(former_players)] = selected_player
-                        former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now()
-                        active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                        banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data()
-                        st.success(f"Player {selected_player['Player Name']} has been removed.")
-                    else:
-                        st.error(f"Player {selected_player['Player Name']} is already removed.")
-                st.rerun()
 
 # SAVE button (green, rounded corners)
 st.markdown(
