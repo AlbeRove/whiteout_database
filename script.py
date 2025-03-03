@@ -163,7 +163,7 @@ if not filtered_players.empty:
 
     if action:
         confirm_change = st.button("Confirm")
-        ChangeColourButton('Confirm', 'white', '#45a049')
+        ChangeButtonColour('Confirm', 'white', '#45a049')
         if confirm_change:
             with st.spinner(f"Processing {action}..."):
                 if action == "Ban":
@@ -212,7 +212,7 @@ else:
 
 
 save_clicked = st.button('Save')
-ChangeColourButton('Save', 'white', '#1C86EE')
+ChangeButtonColour('Save', 'white', '#1C86EE')
 if save_clicked:
     save_data(active_players, banned_players, former_players)
     st.success("All data has been saved!")
