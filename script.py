@@ -106,7 +106,7 @@ with col2:
             # If the player is in active players, move them to banned
             player_in_active = active_players[active_players["Player ID"] == new_player_id]
             banned_players = pd.concat([banned_players, player_in_active], ignore_index=True)
-            banned_players.iloc[-1, banned_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M").strftime("%d:%m:%Y %H:%M")
+            banned_players.iloc[-1, banned_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M")
             active_players = active_players[active_players["Player ID"] != new_player_id]
             save_data(active_players, banned_players, former_players)
             st.success(f"Player {new_player_name} has been banned from Active Players.")
