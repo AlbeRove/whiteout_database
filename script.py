@@ -45,10 +45,10 @@ st.markdown("""
 
 
 # Player Name and ID input fields
-new_player_name = st.text_input("Player Name", key="player_name")
+new_player_name = st.text_input("Enter Player Name", key="player_name")
 new_player_name = new_player_name.replace("[ARW]", "")
 
-new_player_id = st.text_input("Player ID", key="player_id")
+new_player_id = st.text_input("Enter Player ID", key="player_id")
 
 # Add Active Player and Ban Player Buttons side by side
 col1, col2 = st.columns([1,1])  # Create two columns for the buttons
@@ -57,12 +57,16 @@ col1, col2 = st.columns([1,1])  # Create two columns for the buttons
 with col1:
 #    if st.button("Add Player"):
     green_button = st.markdown('<button class="btn btn-green">Confirm</button>', unsafe_allow_html=True)
-    if new_player_name and new_player_id:
+    if not new_player_name and new_player_id:
+        st.error('Please enter a valid player name and ID')
+    else:
         # Check if the player ID exists in any list
         if new_player_id in active_players["Player ID"].values:
-            st.error(f"Player ID {new_player_id} is already in Active Players.")
+            st.error(f"Player ID {new_player_name} is already in Active Players.")
+            
         elif new_player_id in banned_players["Player ID"].values:
             st.warning(f"Player ID {new_player_id} is currently banned. Cannot add as an active player.")
+            
         elif new_player_id in former_players["Player ID"].values:
             # If the player is in former players, move them to active
             player_in_former = former_players[former_players["Player ID"] == new_player_id]
@@ -83,10 +87,13 @@ with col1:
 with col2:
 #    if st.button("Ban Player"):
     ban_button = st.markdown('<button class="btn btn-ban">Ban</button>', unsafe_allow_html=True)
-    if new_player_name and new_player_id:
+    if not new_player_name and new_player_id:
+        st.error('Please enter a valid player name and ID')
+    else:
         # Check if the player is already in banned or former players
         if new_player_id in banned_players["Player ID"].values:
             st.error(f"Player ID {new_player_id} is already banned.")
+        
         elif new_player_id in former_players["Player ID"].values:
             # If the player is in former players, move them to banned players
             player_in_former = former_players[former_players["Player ID"] == new_player_id]
@@ -95,22 +102,21 @@ with col2:
             former_players = former_players[former_players["Player ID"] != new_player_id]
             save_data(active_players, banned_players, former_players)
             st.success(f"Player {new_player_name} moved from Former Players to Banned Players.")
-        else:
+        elif new_player_id in active_players["Player ID"].values:
             # If the player is in active players, move them to banned
             player_in_active = active_players[active_players["Player ID"] == new_player_id]
-            if not player_in_active.empty:
-                banned_players.loc[len(banned_players)] = player_in_active.iloc[0]
-                banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
-                active_players = active_players[active_players["Player ID"] != new_player_id]
-                save_data(active_players, banned_players, former_players)
-                st.success(f"Player {new_player_name} has been banned from Active Players.")
-            else:
-                # If the player is not in active, just add them to banned list
-                new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now().strftime("%d:%m:%Y %H:%M")]], 
-                                         columns=["Player Name", "Player ID", "Time Banned"])
-                banned_players = pd.concat([banned_players, new_entry], ignore_index=True)
-                save_data(active_players, banned_players, former_players)
-                st.success(f"Player {new_player_name} has been directly added to Banned Players.")
+            banned_players = pd.concat([banned_players, player_in_active], ignore_index=True)
+            banned_players.iloc[-1, banned_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M").strftime("%d:%m:%Y %H:%M")
+            active_players = active_players[active_players["Player ID"] != new_player_id]
+            save_data(active_players, banned_players, former_players)
+            st.success(f"Player {new_player_name} has been banned from Active Players.")
+        else:
+            # If the player is not in active, just add them to banned list
+            new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now().strftime("%d:%m:%Y %H:%M")]], 
+                                     columns=["Player Name", "Player ID", "Time Banned"])
+            banned_players = pd.concat([banned_players, new_entry], ignore_index=True)
+            save_data(active_players, banned_players, former_players)
+            st.success(f"Player {new_player_name} has been directly added to Banned Players.")
 
 
 # Function to render tables (with scroll functionality if more than 10 entries)
