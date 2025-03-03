@@ -53,7 +53,7 @@ with col1:
 # Ban Player Button in red
 with col2:
     ban_clicked = st.button("Ban", key="ban", help="Ban a player")
-    ChengeButtonColour('Ban', 'white', '#d32f2f')
+    ChangeButtonColour('Ban', 'white', '#d32f2f')
 if confirm_clicked:
     if not new_player_name and new_player_id:
         st.error('Please enter a valid player name and ID')
