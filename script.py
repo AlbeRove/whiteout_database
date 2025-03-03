@@ -23,6 +23,24 @@ active_players = active_load.copy()
 banned_players = banned_load.copy()
 former_players = former_load.copy()
 
+st.markdown("""
+    <style>
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-green { background-color: #4CAF50; color: white; }
+        .btn-green:hover { background-color: #45a049; }
+        .btn-red { background-color: #f44336; color: white; }
+        .btn-red:hover { background-color: #d32f2f; }
+    </style>
+""", unsafe_allow_html=True)
+
 
 # Player Name and ID input fields
 new_player_name = st.text_input("Player Name", key="player_name")
@@ -31,32 +49,33 @@ new_player_name = new_player_name.replace("[ARW]", "")
 new_player_id = st.text_input("Player ID", key="player_id")
 
 # Add Active Player and Ban Player Buttons side by side
-col1, col2 = st.columns([1, 1])  # Create two columns for the buttons
+col1, col2 = st.columns(2)  # Create two columns for the buttons
 
 # Add Player Button
 with col1:
-    if st.button("Add Player"):
-        if new_player_name and new_player_id:
-            # Check if the player ID exists in any list
-            if new_player_id in active_players["Player ID"].values:
-                st.error(f"Player ID {new_player_id} is already in Active Players.")
-            elif new_player_id in banned_players["Player ID"].values:
-                st.warning(f"Player ID {new_player_id} is currently banned. Cannot add as an active player.")
-            elif new_player_id in former_players["Player ID"].values:
-                # If the player is in former players, move them to active
-                player_in_former = former_players[former_players["Player ID"] == new_player_id]
-                active_players = pd.concat([active_players, player_in_former], ignore_index=True)
-                active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M").strftime("%d:%m:%Y %H:%M")
-                former_players = former_players[former_players["Player ID"] != new_player_id]
-                save_data(active_players, banned_players, former_players)
-                st.success(f"Player {new_player_name} moved to Active Players.")
-            else:
-                # If the player is not found in any list, add them to active players
-                new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now().strftime("%d:%m:%Y %H:%M")]], 
-                                         columns=["Player Name", "Player ID", "Time Added"])
-                active_players = pd.concat([active_players, new_entry], ignore_index=True)
-                save_data(active_players, banned_players, former_players)
-                st.success(f"Player {new_player_name} added to Active Players.")
+#    if st.button("Add Player"):
+    green_button = st.markdown('<button class="btn btn-green">✅ Confirm</button>', unsafe_allow_html=True)
+    if new_player_name and new_player_id:
+        # Check if the player ID exists in any list
+        if new_player_id in active_players["Player ID"].values:
+            st.error(f"Player ID {new_player_id} is already in Active Players.")
+        elif new_player_id in banned_players["Player ID"].values:
+            st.warning(f"Player ID {new_player_id} is currently banned. Cannot add as an active player.")
+        elif new_player_id in former_players["Player ID"].values:
+            # If the player is in former players, move them to active
+            player_in_former = former_players[former_players["Player ID"] == new_player_id]
+            active_players = pd.concat([active_players, player_in_former], ignore_index=True)
+            active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M").strftime("%d:%m:%Y %H:%M")
+            former_players = former_players[former_players["Player ID"] != new_player_id]
+            save_data(active_players, banned_players, former_players)
+            st.success(f"Player {new_player_name} moved to Active Players.")
+        else:
+            # If the player is not found in any list, add them to active players
+            new_entry = pd.DataFrame([[new_player_name, new_player_id, datetime.now().strftime("%d:%m:%Y %H:%M")]], 
+                                     columns=["Player Name", "Player ID", "Time Added"])
+            active_players = pd.concat([active_players, new_entry], ignore_index=True)
+            save_data(active_players, banned_players, former_players)
+            st.success(f"Player {new_player_name} added to Active Players.")
 
 # Ban Player Button in red
 with col2:
