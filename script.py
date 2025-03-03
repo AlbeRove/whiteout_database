@@ -171,13 +171,11 @@ if not filtered_players.empty:
                         banned_players.loc[len(banned_players)] = selected_player
                         banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                     elif selected_player["Player ID"] in former_players["Player ID"].values:
                         banned_players.loc[len(banned_players)] = selected_player
                         banned_players.iloc[-1, banned_players.columns.get_loc("Time Banned")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         former_players = former_players[former_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been banned.")
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already banned or removed.")
@@ -187,7 +185,6 @@ if not filtered_players.empty:
                         active_players.loc[len(active_players)] = selected_player
                         active_players.iloc[-1, active_players.columns.get_loc("Time Added")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been restored.")
                     else:
                         st.error(f"Player {selected_player['Player Name']} is not in the banned list.")
@@ -198,7 +195,6 @@ if not filtered_players.empty:
                         former_players.iloc[-1, former_players.columns.get_loc("Time Removed")] = datetime.now().strftime("%d:%m:%Y %H:%M")
                         active_players = active_players[active_players["Player ID"] != selected_player["Player ID"]]
                         banned_players = banned_players[banned_players["Player ID"] != selected_player["Player ID"]]
-                        save_data(active_players, banned_players, former_players)
                         st.success(f"Player {selected_player['Player Name']} has been removed.")
                     else:
                         st.error(f"Player {selected_player['Player Name']} is already removed.")
