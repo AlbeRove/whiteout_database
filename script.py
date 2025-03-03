@@ -43,6 +43,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+    <script>
+        function setConfirmClicked() {
+            document.getElementById("confirm_hidden").click();
+        }
+        function setBanClicked() {
+            document.getElementById("ban_hidden").click();
+        }
+    </script>
+""", unsafe_allow_html=True)
 
 # Player Name and ID input fields
 new_player_name = st.text_input("Enter Player Name", key="player_name")
@@ -54,10 +64,12 @@ new_player_id = st.text_input("Enter Player ID", key="player_id")
 col1, col2 = st.columns([1,1])  # Create two columns for the buttons
 
 with col1:
-    confirm_clicked = st.button("✅ Confirm Player", key="confirm", help="Confirm a player")
+    st.markdown('<button class="btn btn-green" onclick="setConfirmClicked()">Confirm</button>', unsafe_allow_html=True)
+    confirm_clicked = st.button("Confirm", key="confirm", help="Confirm a player")
 
 with col2:
-    ban_clicked = st.button("🚫 Ban Player", key="ban", help="Ban a player")
+    st.markdown('<button class="btn btn-red" onclick="setBanClicked()">Ban</button>', unsafe_allow_html=True)
+    ban_clicked = st.button("Ban", key="ban", help="Ban a player")
 
 
 # Add Player Button
