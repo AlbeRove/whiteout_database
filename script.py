@@ -56,7 +56,7 @@ col1, col2 = st.columns(2)  # Create two columns for the buttons
 # Add Player Button
 with col1:
 #    if st.button("Add Player"):
-    green_button = st.markdown('<button class="btn btn-green">✅ Confirm</button>', unsafe_allow_html=True)
+    green_button = st.markdown('<button class="btn btn-green">Confirm</button>', unsafe_allow_html=True)
     if new_player_name and new_player_id:
         # Check if the player ID exists in any list
         if new_player_id in active_players["Player ID"].values:
@@ -82,7 +82,7 @@ with col1:
 # Ban Player Button in red
 with col2:
 #    if st.button("Ban Player"):
-    ban_button = st.markdown('<button class="btn btn-ban">❌ Cancel</button>', unsafe_allow_html=True)
+    ban_button = st.markdown('<button class="btn btn-ban">Ban</button>', unsafe_allow_html=True)
     if new_player_name and new_player_id:
         # Check if the player is already in banned or former players
         if new_player_id in banned_players["Player ID"].values:
@@ -208,11 +208,9 @@ else:
 
 
 
-st.markdown('<div class="green-button">', unsafe_allow_html=True)
-if st.button("SAVE"):
-    save_data(active_players, banned_players, former_players)
-    st.success("All data has been saved!")
-st.markdown("</div>", unsafe_allow_html=True)
+if st.markdown('<button class="btn btn-red">Save</button>', unsafe_allow_html=True):
+save_data(active_players, banned_players, former_players)
+st.success("All data has been saved!")
 
 # Add download buttons
 st.subheader("Download Data Files")
