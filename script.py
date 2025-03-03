@@ -65,11 +65,11 @@ col1, col2 = st.columns([1,1])  # Create two columns for the buttons
 
 with col1:
     st.markdown('<button class="btn btn-green" onclick="setConfirmClicked()">Confirm</button>', unsafe_allow_html=True)
-    confirm_clicked = st.button("Confirm", key="confirm_hidden", help="Confirm a player")
+    confirm_clicked = st.button("Hidden Confirm", key="confirm_hidden", help="Confirm a player")
 
 with col2:
     st.markdown('<button class="btn btn-red" onclick="setBanClicked()">Ban</button>', unsafe_allow_html=True)
-    ban_clicked = st.button("Ban", key="ban_hidden", help="Ban a player")
+    ban_clicked = st.button("Hidden Ban", key="ban_hidden", help="Ban a player")
 
 
 # Add Player Button
