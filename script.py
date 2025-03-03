@@ -37,11 +37,15 @@ active_players = active_load.copy()
 banned_players = banned_load.copy()
 former_players = former_load.copy()
 
+active_players["Player ID"] = active_players["Player ID"].astype(str)
+banned_players["Player ID"] = banned_players["Player ID"].astype(str)
+former_players["Player ID"] = former_players["Player ID"].astype(str)
+
 # Player Name and ID input fields
 new_player_name = st.text_input("Enter Player Name", key="player_name")
 new_player_name = new_player_name.replace("[ARW]", "")
 
-new_player_id = st.text_input("Enter Player ID", key="player_id")
+new_player_id = str(st.text_input("Enter Player ID", key="player_id"))
 
 # Add Active Player and Ban Player Buttons side by side
 col1, col2 = st.columns([1,1])  # Create two columns for the buttons
