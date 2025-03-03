@@ -51,7 +51,7 @@ new_player_name = new_player_name.replace("[ARW]", "")
 new_player_id = st.text_input("Player ID", key="player_id")
 
 # Add Active Player and Ban Player Buttons side by side
-col1, col2 = st.columns(2)  # Create two columns for the buttons
+col1, col2 = st.columns([1,1])  # Create two columns for the buttons
 
 # Add Player Button
 with col1:
