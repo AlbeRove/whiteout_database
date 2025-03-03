@@ -209,8 +209,8 @@ else:
 
 
 if st.markdown('<button class="btn btn-red">Save</button>', unsafe_allow_html=True):
-save_data(active_players, banned_players, former_players)
-st.success("All data has been saved!")
+    save_data(active_players, banned_players, former_players)
+    st.success("All data has been saved!")
 
 # Add download buttons
 st.subheader("Download Data Files")
