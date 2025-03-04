@@ -1,11 +1,13 @@
 import pandas as pd
 from datetime import datetime
 import os
-import subprocess
+import requests
+
 
 ACTIVE_PLAYERS_FILE = "active_players.csv"
 BANNED_PLAYERS_FILE = "banned_players.csv"
 FORMER_PLAYERS_FILE = "former_players.csv"
+
 
 # Load data from CSV files
 def load_data(file_path, columns):
@@ -25,7 +27,7 @@ def save_data(active_players, banned_players, former_players):
     banned_players.to_csv(BANNED_PLAYERS_FILE, index=False)
     former_players.to_csv(FORMER_PLAYERS_FILE, index=False)
 
-
+    
 # Format date-time function
 def format_datetime(dt):
     if pd.isna(dt) or dt == "":
@@ -34,3 +36,4 @@ def format_datetime(dt):
         return datetime.strptime(str(dt), "%Y-%m-%d %H:%M:%S.%f").strftime("%d-%m-%Y %H:%M")
     except ValueError:
         return str(dt)
+
