@@ -3,7 +3,7 @@ import requests
 import base64
 import os
 
-def upload_to_github(repo, branch="main"):
+def upload_to_github(repo, branch="master"):
     """
     Uploads active_players.csv, banned_players.csv, and former_players.csv to the specified GitHub repository.
 
