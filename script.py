@@ -207,7 +207,7 @@ if not filtered_players.empty:
 else:
     st.info("No players found")
 
-GITHUB_REPO = 'https://github.com/AlbeRove/whiteout_database'
+GITHUB_REPO = 'AlbeRove/whiteout_database'
 save_clicked = st.button('Save')
 ChangeButtonColour('Save', 'white', '#1C86EE')
 if save_clicked:
