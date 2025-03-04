@@ -212,7 +212,8 @@ save_clicked = st.button('Save')
 ChangeButtonColour('Save', 'white', '#1C86EE')
 if save_clicked:
     save_data(active_players, banned_players, former_players)
-    upload_to_github(GITHUB_REPO)
+#    upload_to_github(GITHUB_REPO)
+    upload_dataframe_to_github(banned_players, 'banned_players.csv', GITHUB_REPO, branch="master"):
     st.success("All data has been saved!")
 
 # Add download buttons
