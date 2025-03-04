@@ -216,6 +216,7 @@ if save_clicked:
     upload_dataframe_to_github(banned_players, 'banned_players.csv', GITHUB_REPO, branch="master"):
     st.success("All data has been saved!")
 
+
 # Add download buttons
 st.subheader("Download Data Files")
 # Download Active Players CSV
