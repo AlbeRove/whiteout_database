@@ -3,61 +3,65 @@ import requests
 import base64
 import os
 
-def upload_to_github(repo, branch="master"):
+import streamlit as st
+import pandas as pd
+import base64
+import requests
+import os
+
+def upload_dataframe_to_github(df, file_name, repo, branch="master"):
     """
-    Uploads active_players.csv, banned_players.csv, and former_players.csv to the specified GitHub repository.
+    Uploads a DataFrame to GitHub as a CSV file.
 
     Args:
-        repo (str): Your GitHub repository in the format "username/repo-name".
-        branch (str, optional): The branch to upload the files to. Defaults to "main".
+        df (pandas.DataFrame): The DataFrame to upload.
+        file_name (str): The name of the file (e.g., 'active_players.csv').
+        repo (str): The GitHub repository (e.g., 'user/repo-name').
+        branch (str, optional): The branch to upload to. Defaults to 'master'.
     """
 
     # Load GitHub Token
     GITHUB_TOKEN = st.secrets["github"]["token"] if "github" in st.secrets else os.getenv("GITHUB_TOKEN")
     if not GITHUB_TOKEN:
-        st.error("GitHub token is missing! Store it in Streamlit secrets or an environment variable.")
+        st.error("GitHub token is missing!")
         return
 
-    # File names
-    files = ["active_players.csv", "banned_players.csv", "former_players.csv"]
+    # Convert DataFrame to CSV in memory
+    csv_data = df.to_csv(index=False)
+
+    # Base64 encode the CSV content
+    encoded_content = base64.b64encode(csv_data.encode()).decode()
 
     # GitHub API URL
-    base_url = f"https://api.github.com/repos/{repo}/contents/"
+    base_url = f"https://api.github.com/repos/{repo}/contents/{file_name}"
 
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json"
     }
 
-    for file_name in files:
-        try:
-            # Read file content
-            with open(file_name, "rb") as f:
-                content = base64.b64encode(f.read()).decode()
+    # Prepare the API payload
+    data = {
+        "message": f"Update {file_name}",
+        "content": encoded_content,
+        "branch": branch
+    }
 
-            file_url = base_url + file_name
+    # Check if the file already exists and get the SHA (if updating)
+    response = requests.get(base_url, headers=headers)
+    sha = response.json().get("sha", "")
 
-            # Check if the file already exists (to get the SHA)
-            response = requests.get(file_url, headers=headers)
-            sha = response.json().get("sha", "")
+    if sha:
+        data["sha"] = sha  # Required for updating existing files
 
-            # Prepare API request payload
-            data = {
-                "message": f"Update {file_name}",
-                "content": content,
-                "branch": branch
-            }
-            if sha:
-                data["sha"] = sha  # Required for updating existing files
+    # Upload the file via the GitHub API
+    response = requests.put(base_url, headers=headers, json=data)
 
-            # Upload file via GitHub API
-            response = requests.put(file_url, headers=headers, json=data)
+    # Debugging the API response
+    if response.status_code == 200:
+        st.success(f"✅ Successfully uploaded {file_name} to {repo} on {branch}!")
+    else:
+        st.error(f"❌ Failed to upload {file_name}. Response: {response.json()}")
 
-            if response.status_code in [200, 201]:
-                st.success(f"✅ Successfully uploaded {file_name} to {repo} on {branch} branch!")
-            else:
-                st.error(f"❌ Failed to upload {file_name}. Response: {response.json()}")
 
-        except Exception as e:
-            st.error(f"⚠️ Error uploading {file_name}: {e}")
 
