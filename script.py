@@ -206,11 +206,11 @@ if not filtered_players.empty:
 else:
     st.info("No players found")
 
-
+GITHUB_REPO = 'https://github.com/AlbeRove/whiteout_database'
 save_clicked = st.button('Save')
 ChangeButtonColour('Save', 'white', '#1C86EE')
 if save_clicked:
-    save_data(active_players, banned_players, former_players)
+    upload_to_github(GITHUB_REPO)
     st.success("All data has been saved!")
 
 # Add download buttons
